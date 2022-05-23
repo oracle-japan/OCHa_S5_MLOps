@@ -1,0 +1,3048 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: tfx-census-income-pipeline-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.7.2, pipelines.kubeflow.org/pipeline_compilation_time: '2022-05-23T05:21:10.330457',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "Constructs a Kubeflow
+      pipeline.", "inputs": [{"default": "s3://census-income/pipelines/tfx_census_income_pipeline",
+      "name": "pipeline-root"}, {"default": "{\"splits\": [{\"name\": \"single_split\",
+      \"pattern\": \"span-{SPAN}/v{VERSION}/*\"}]}", "name": "input_config"}, {"default":
+      "{\"filesystem\": {\"base_directory\": \"s3://census-income/serving_model\"}}",
+      "name": "push_destination"}], "name": "tfx_census_income_pipeline"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.7.2}
+spec:
+  entrypoint: tfx-census-income-pipeline
+  templates:
+  - name: evaluator
+    container:
+      args:
+      - --pipeline_root
+      - '{{inputs.parameters.pipeline-root}}'
+      - --kubeflow_metadata_config
+      - |-
+        {
+          "mysql_db_service_host": {
+            "value": "mysql.kubeflow"
+          },
+          "mysql_db_service_port": {
+            "value": "3306"
+          },
+          "mysql_db_name": {
+            "value": "metadb"
+          },
+          "mysql_db_user": {
+            "value": "root"
+          },
+          "mysql_db_password": {
+            "value": ""
+          },
+          "grpc_config": {
+            "grpc_service_host": {
+              "value": "metadata-grpc-service.kubeflow.svc.cluster.local"
+            },
+            "grpc_service_port": {
+              "value": "8080"
+            }
+          }
+        }
+      - --node_id
+      - Evaluator
+      - --serialized_component
+      - '{"__class__": "NodeWrapper", "__module__": "tfx.orchestration.kubeflow.node_wrapper",
+        "__tfx_object_type__": "jsonable", "_exec_properties": {"eval_config": "{\n  \"metrics_specs\":
+        [\n    {\n      \"metrics\": [\n        {\n          \"class_name\": \"ExampleCount\"\n        },\n        {\n          \"class_name\":
+        \"Precision\"\n        },\n        {\n          \"class_name\": \"Recall\"\n        },\n        {\n          \"class_name\":
+        \"F1Score\"\n        },\n        {\n          \"class_name\": \"AUC\"\n        },\n        {\n          \"class_name\":
+        \"FalsePositives\"\n        },\n        {\n          \"class_name\": \"TruePositives\"\n        },\n        {\n          \"class_name\":
+        \"FalseNegatives\"\n        },\n        {\n          \"class_name\": \"TrueNegatives\"\n        }\n      ]\n    }\n  ],\n  \"model_specs\":
+        [\n    {\n      \"label_key\": \"income_xf\",\n      \"preprocessing_function_names\":
+        [\n        \"transform_features\"\n      ]\n    }\n  ],\n  \"slicing_specs\":
+        [\n    {},\n    {\n      \"feature_keys\": [\n        \"gender_0_xf\"\n      ]\n    },\n    {\n      \"feature_keys\":
+        [\n        \"age_xf\"\n      ]\n    }\n  ]\n}", "example_splits": "null",
+        "fairness_indicator_thresholds": "null", "feature_slicing_spec": null, "module_file":
+        null, "module_path": null}, "_id": "Evaluator", "_inputs": {"examples": {"__class__":
+        "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__": "jsonable",
+        "additional_custom_properties": {}, "additional_properties": {}, "artifacts":
+        [{"__artifact_class_module__": "tfx.types.standard_artifacts", "__artifact_class_name__":
+        "Examples", "artifact": {"custom_properties": {"file_format": {"string_value":
+        "tfrecords_gzip"}, "input_fingerprint": {"string_value": "split:single_split,num_files:1,total_bytes:10601607,xor_checksum:1653282886,sum_checksum:1653282886"},
+        "payload_format": {"string_value": "FORMAT_TF_EXAMPLE"}, "span": {"int_value":
+        "1"}, "state": {"string_value": "published"}, "tfx_version": {"string_value":
+        "1.2.0"}, "version": {"int_value": "1"}}, "id": "1", "properties": {"split_names":
+        {"string_value": "[\"train\", \"eval\"]"}}, "state": "LIVE", "type_id": "14",
+        "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/ImportExampleGen/examples/1"},
+        "artifact_type": {"id": "14", "name": "Examples", "properties": {"span": "INT",
+        "split_names": "STRING", "version": "INT"}}}], "output_key": "examples", "producer_component_id":
+        "ImportExampleGen", "type": {"name": "Examples", "properties": {"span": "INT",
+        "split_names": "STRING", "version": "INT"}}}, "model": {"__class__": "Channel",
+        "__module__": "tfx.types.channel", "__tfx_object_type__": "jsonable", "additional_custom_properties":
+        {}, "additional_properties": {}, "artifacts": [{"__artifact_class_module__":
+        "tfx.types.standard_artifacts", "__artifact_class_name__": "Model", "artifact":
+        {"custom_properties": {"name": {"string_value": "model"}, "producer_component":
+        {"string_value": "Trainer"}, "state": {"string_value": "published"}, "tfx_version":
+        {"string_value": "1.2.0"}}, "id": "21", "state": "LIVE", "type_id": "26",
+        "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Trainer/model/14"},
+        "artifact_type": {"id": "26", "name": "Model"}}], "output_key": "model", "producer_component_id":
+        "Trainer", "type": {"name": "Model"}}}, "_outputs": {"blessing": {"__class__":
+        "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__": "jsonable",
+        "additional_custom_properties": {}, "additional_properties": {}, "artifacts":
+        [{"__artifact_class_module__": "tfx.types.standard_artifacts", "__artifact_class_name__":
+        "ModelBlessing", "artifact": {"custom_properties": {"name": {"string_value":
+        "blessing"}, "producer_component": {"string_value": "Evaluator"}, "state":
+        {"string_value": "published"}, "tfx_version": {"string_value": "1.2.0"}},
+        "id": "24", "state": "LIVE", "type_id": "32", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Evaluator/blessing/15"},
+        "artifact_type": {"id": "32", "name": "ModelBlessing"}}], "output_key": "blessing",
+        "producer_component_id": "Evaluator", "type": {"name": "ModelBlessing"}},
+        "evaluation": {"__class__": "Channel", "__module__": "tfx.types.channel",
+        "__tfx_object_type__": "jsonable", "additional_custom_properties": {}, "additional_properties":
+        {}, "artifacts": [{"__artifact_class_module__": "tfx.types.standard_artifacts",
+        "__artifact_class_name__": "ModelEvaluation", "artifact": {"custom_properties":
+        {"name": {"string_value": "evaluation"}, "producer_component": {"string_value":
+        "Evaluator"}, "state": {"string_value": "published"}, "tfx_version": {"string_value":
+        "1.2.0"}}, "id": "23", "state": "LIVE", "type_id": "31", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Evaluator/evaluation/15"},
+        "artifact_type": {"id": "31", "name": "ModelEvaluation"}}], "output_key":
+        "evaluation", "producer_component_id": "Evaluator", "type": {"name": "ModelEvaluation"}}},
+        "_type": "tfx.components.evaluator.component.Evaluator", "driver_class": {"__class__":
+        "BaseDriver", "__module__": "tfx.dsl.components.base.base_driver", "__tfx_object_type__":
+        "class"}, "executor_spec": {"__class__": "BeamExecutorSpec", "__module__":
+        "tfx.dsl.components.base.executor_spec", "__tfx_object_type__": "jsonable",
+        "beam_pipeline_args": ["--s3_access_key_id=XJGhECgFUmY9vtcK", "--s3_secret_access_key=Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib",
+        "--s3_endpoint_url=http://minio.default.svc.cluster.local", "--s3_region_name=ap-northeast-1",
+        "--s3_verify=0", "--s3_disable_ssl", "--direct_num_workers=1"], "executor_class":
+        {"__class__": "Executor", "__module__": "tfx.components.evaluator.executor",
+        "__tfx_object_type__": "class"}, "extra_flags": []}}'
+      - --tfx_ir
+      - |-
+        {
+          "pipelineInfo": {
+            "id": "tfx_census_income_pipeline"
+          },
+          "nodes": [
+            {
+              "pipelineNode": {
+                "nodeInfo": {
+                  "type": {
+                    "name": "tfx.components.evaluator.component.Evaluator"
+                  },
+                  "id": "Evaluator"
+                },
+                "contexts": {
+                  "contexts": [
+                    {
+                      "type": {
+                        "name": "pipeline"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "pipeline_run"
+                      },
+                      "name": {
+                        "runtimeParameter": {
+                          "name": "pipeline-run-id",
+                          "type": "STRING"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "node"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline.Evaluator"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "inputs": {
+                  "inputs": {
+                    "examples": {
+                      "channels": [
+                        {
+                          "producerNodeQuery": {
+                            "id": "ImportExampleGen"
+                          },
+                          "contextQueries": [
+                            {
+                              "type": {
+                                "name": "pipeline"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "pipeline_run"
+                              },
+                              "name": {
+                                "runtimeParameter": {
+                                  "name": "pipeline-run-id",
+                                  "type": "STRING"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "node"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline.ImportExampleGen"
+                                }
+                              }
+                            }
+                          ],
+                          "artifactQuery": {
+                            "type": {
+                              "name": "Examples"
+                            }
+                          },
+                          "outputKey": "examples"
+                        }
+                      ]
+                    },
+                    "model": {
+                      "channels": [
+                        {
+                          "producerNodeQuery": {
+                            "id": "Trainer"
+                          },
+                          "contextQueries": [
+                            {
+                              "type": {
+                                "name": "pipeline"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "pipeline_run"
+                              },
+                              "name": {
+                                "runtimeParameter": {
+                                  "name": "pipeline-run-id",
+                                  "type": "STRING"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "node"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline.Trainer"
+                                }
+                              }
+                            }
+                          ],
+                          "artifactQuery": {
+                            "type": {
+                              "name": "Model"
+                            }
+                          },
+                          "outputKey": "model"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "outputs": {
+                  "outputs": {
+                    "evaluation": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "ModelEvaluation"
+                        }
+                      }
+                    },
+                    "blessing": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "ModelBlessing"
+                        }
+                      }
+                    }
+                  }
+                },
+                "parameters": {
+                  "parameters": {
+                    "example_splits": {
+                      "fieldValue": {
+                        "stringValue": "null"
+                      }
+                    },
+                    "eval_config": {
+                      "fieldValue": {
+                        "stringValue": "{\n  \"metrics_specs\": [\n    {\n      \"metrics\": [\n        {\n          \"class_name\": \"ExampleCount\"\n        },\n        {\n          \"class_name\": \"Precision\"\n        },\n        {\n          \"class_name\": \"Recall\"\n        },\n        {\n          \"class_name\": \"F1Score\"\n        },\n        {\n          \"class_name\": \"AUC\"\n        },\n        {\n          \"class_name\": \"FalsePositives\"\n        },\n        {\n          \"class_name\": \"TruePositives\"\n        },\n        {\n          \"class_name\": \"FalseNegatives\"\n        },\n        {\n          \"class_name\": \"TrueNegatives\"\n        }\n      ]\n    }\n  ],\n  \"model_specs\": [\n    {\n      \"label_key\": \"income_xf\",\n      \"preprocessing_function_names\": [\n        \"transform_features\"\n      ]\n    }\n  ],\n  \"slicing_specs\": [\n    {},\n    {\n      \"feature_keys\": [\n        \"gender_0_xf\"\n      ]\n    },\n    {\n      \"feature_keys\": [\n        \"age_xf\"\n      ]\n    }\n  ]\n}"
+                      }
+                    },
+                    "fairness_indicator_thresholds": {
+                      "fieldValue": {
+                        "stringValue": "null"
+                      }
+                    }
+                  }
+                },
+                "upstreamNodes": [
+                  "ImportExampleGen",
+                  "Trainer"
+                ],
+                "executionOptions": {
+                  "cachingOptions": {
+                    "enableCache": true
+                  }
+                }
+              }
+            }
+          ],
+          "runtimeSpec": {
+            "pipelineRoot": {
+              "runtimeParameter": {
+                "name": "pipeline-root",
+                "type": "STRING",
+                "defaultValue": {
+                  "stringValue": "s3://census-income/pipelines/tfx_census_income_pipeline"
+                }
+              }
+            },
+            "pipelineRunId": {
+              "runtimeParameter": {
+                "name": "pipeline-run-id",
+                "type": "STRING"
+              }
+            }
+          },
+          "executionMode": "SYNC",
+          "deploymentConfig": {
+            "@type": "type.googleapis.com/tfx.orchestration.IntermediateDeploymentConfig",
+            "executorSpecs": {
+              "Evaluator": {
+                "@type": "type.googleapis.com/tfx.orchestration.executable_spec.BeamExecutableSpec",
+                "pythonExecutorSpec": {
+                  "classPath": "tfx.components.evaluator.executor.Executor"
+                },
+                "beamPipelineArgs": [
+                  "--s3_access_key_id=XJGhECgFUmY9vtcK",
+                  "--s3_secret_access_key=Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib",
+                  "--s3_endpoint_url=http://minio.default.svc.cluster.local",
+                  "--s3_region_name=ap-northeast-1",
+                  "--s3_verify=0",
+                  "--s3_disable_ssl",
+                  "--direct_num_workers=1"
+                ]
+              }
+            }
+          }
+        }
+      - --runtime_parameter
+      - pipeline-root=STRING:{{inputs.parameters.pipeline-root}}
+      command: [python, -m, tfx.orchestration.kubeflow.container_entrypoint]
+      env:
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - {name: AWS_ACCESS_KEY_ID, value: XJGhECgFUmY9vtcK}
+      - {name: AWS_SECRET_ACCESS_KEY, value: Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib}
+      - {name: AWS_REGION, value: ap-northeast-1}
+      - {name: S3_ENDPOINT, value: 'http://minio.default.svc.cluster.local'}
+      - {name: S3_USE_HTTPS, value: '0'}
+      - {name: S3_VERIFY_SSL, value: '0'}
+      - name: KFP_POD_NAME
+        valueFrom:
+          fieldRef: {fieldPath: metadata.name}
+      - name: KFP_POD_UID
+        valueFrom:
+          fieldRef: {fieldPath: metadata.uid}
+      - name: KFP_NAMESPACE
+        valueFrom:
+          fieldRef: {fieldPath: metadata.namespace}
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - name: KFP_RUN_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipeline/runid'']'}
+      - name: ENABLE_CACHING
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipelines.kubeflow.org/enable_caching'']'}
+      image: nrt.ocir.io/orasejapan/ocha_demo
+    inputs:
+      parameters:
+      - {name: pipeline-root}
+    outputs:
+      artifacts:
+      - {name: mlpipeline-ui-metadata, path: /mlpipeline-ui-metadata.json}
+    metadata:
+      labels:
+        add-pod-env: "true"
+        pipelines.kubeflow.org/pipeline-sdk-type: tfx
+        pipelines.kubeflow.org/kfp_sdk_version: 1.7.2
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: examplevalidator
+    container:
+      args:
+      - --pipeline_root
+      - '{{inputs.parameters.pipeline-root}}'
+      - --kubeflow_metadata_config
+      - |-
+        {
+          "mysql_db_service_host": {
+            "value": "mysql.kubeflow"
+          },
+          "mysql_db_service_port": {
+            "value": "3306"
+          },
+          "mysql_db_name": {
+            "value": "metadb"
+          },
+          "mysql_db_user": {
+            "value": "root"
+          },
+          "mysql_db_password": {
+            "value": ""
+          },
+          "grpc_config": {
+            "grpc_service_host": {
+              "value": "metadata-grpc-service.kubeflow.svc.cluster.local"
+            },
+            "grpc_service_port": {
+              "value": "8080"
+            }
+          }
+        }
+      - --node_id
+      - ExampleValidator
+      - --serialized_component
+      - '{"__class__": "NodeWrapper", "__module__": "tfx.orchestration.kubeflow.node_wrapper",
+        "__tfx_object_type__": "jsonable", "_exec_properties": {"exclude_splits":
+        "[]"}, "_id": "ExampleValidator", "_inputs": {"schema": {"__class__": "Channel",
+        "__module__": "tfx.types.channel", "__tfx_object_type__": "jsonable", "additional_custom_properties":
+        {}, "additional_properties": {}, "artifacts": [{"__artifact_class_module__":
+        "tfx.types.standard_artifacts", "__artifact_class_name__": "Schema", "artifact":
+        {"create_time_since_epoch": "1653282915309", "custom_properties": {"tfx_version":
+        {"string_value": "1.2.0"}}, "id": "5", "last_update_time_since_epoch": "1653282915309",
+        "type_id": "18", "uri": "s3://census-income/schema/"}, "artifact_type": {"id":
+        "18", "name": "Schema"}}], "output_key": "result", "producer_component_id":
+        "schema_importer", "type": {"name": "Schema"}}, "statistics": {"__class__":
+        "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__": "jsonable",
+        "additional_custom_properties": {}, "additional_properties": {}, "artifacts":
+        [{"__artifact_class_module__": "tfx.types.standard_artifacts", "__artifact_class_name__":
+        "ExampleStatistics", "artifact": {"custom_properties": {"name": {"string_value":
+        "statistics"}, "producer_component": {"string_value": "StatisticsGen"}, "state":
+        {"string_value": "published"}, "tfx_version": {"string_value": "1.2.0"}},
+        "id": "3", "properties": {"split_names": {"string_value": "[\"train\", \"eval\"]"}},
+        "state": "LIVE", "type_id": "16", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/StatisticsGen/statistics/3"},
+        "artifact_type": {"id": "16", "name": "ExampleStatistics", "properties": {"span":
+        "INT", "split_names": "STRING"}}}], "output_key": "statistics", "producer_component_id":
+        "StatisticsGen", "type": {"name": "ExampleStatistics", "properties": {"span":
+        "INT", "split_names": "STRING"}}}}, "_outputs": {"anomalies": {"__class__":
+        "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__": "jsonable",
+        "additional_custom_properties": {}, "additional_properties": {}, "artifacts":
+        [{"__artifact_class_module__": "tfx.types.standard_artifacts", "__artifact_class_name__":
+        "ExampleAnomalies", "artifact": {"custom_properties": {"name": {"string_value":
+        "anomalies"}, "producer_component": {"string_value": "ExampleValidator"},
+        "state": {"string_value": "published"}, "tfx_version": {"string_value": "1.2.0"}},
+        "id": "16", "properties": {"split_names": {"string_value": "[\"train\", \"eval\"]"}},
+        "state": "LIVE", "type_id": "23", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/ExampleValidator/anomalies/10"},
+        "artifact_type": {"id": "23", "name": "ExampleAnomalies", "properties": {"span":
+        "INT", "split_names": "STRING"}}}], "output_key": "anomalies", "producer_component_id":
+        "ExampleValidator", "type": {"name": "ExampleAnomalies", "properties": {"span":
+        "INT", "split_names": "STRING"}}}}, "_type": "tfx.components.example_validator.component.ExampleValidator",
+        "driver_class": {"__class__": "BaseDriver", "__module__": "tfx.dsl.components.base.base_driver",
+        "__tfx_object_type__": "class"}, "executor_spec": {"__class__": "ExecutorClassSpec",
+        "__module__": "tfx.dsl.components.base.executor_spec", "__tfx_object_type__":
+        "jsonable", "executor_class": {"__class__": "Executor", "__module__": "tfx.components.example_validator.executor",
+        "__tfx_object_type__": "class"}, "extra_flags": []}}'
+      - --tfx_ir
+      - |-
+        {
+          "pipelineInfo": {
+            "id": "tfx_census_income_pipeline"
+          },
+          "nodes": [
+            {
+              "pipelineNode": {
+                "nodeInfo": {
+                  "type": {
+                    "name": "tfx.components.example_validator.component.ExampleValidator"
+                  },
+                  "id": "ExampleValidator"
+                },
+                "contexts": {
+                  "contexts": [
+                    {
+                      "type": {
+                        "name": "pipeline"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "pipeline_run"
+                      },
+                      "name": {
+                        "runtimeParameter": {
+                          "name": "pipeline-run-id",
+                          "type": "STRING"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "node"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline.ExampleValidator"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "inputs": {
+                  "inputs": {
+                    "schema": {
+                      "channels": [
+                        {
+                          "producerNodeQuery": {
+                            "id": "schema_importer"
+                          },
+                          "contextQueries": [
+                            {
+                              "type": {
+                                "name": "pipeline"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "pipeline_run"
+                              },
+                              "name": {
+                                "runtimeParameter": {
+                                  "name": "pipeline-run-id",
+                                  "type": "STRING"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "node"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline.schema_importer"
+                                }
+                              }
+                            }
+                          ],
+                          "artifactQuery": {
+                            "type": {
+                              "name": "Schema"
+                            }
+                          },
+                          "outputKey": "result"
+                        }
+                      ]
+                    },
+                    "statistics": {
+                      "channels": [
+                        {
+                          "producerNodeQuery": {
+                            "id": "StatisticsGen"
+                          },
+                          "contextQueries": [
+                            {
+                              "type": {
+                                "name": "pipeline"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "pipeline_run"
+                              },
+                              "name": {
+                                "runtimeParameter": {
+                                  "name": "pipeline-run-id",
+                                  "type": "STRING"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "node"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline.StatisticsGen"
+                                }
+                              }
+                            }
+                          ],
+                          "artifactQuery": {
+                            "type": {
+                              "name": "ExampleStatistics"
+                            }
+                          },
+                          "outputKey": "statistics"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "outputs": {
+                  "outputs": {
+                    "anomalies": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "ExampleAnomalies",
+                          "properties": {
+                            "span": "INT",
+                            "split_names": "STRING"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "parameters": {
+                  "parameters": {
+                    "exclude_splits": {
+                      "fieldValue": {
+                        "stringValue": "[]"
+                      }
+                    }
+                  }
+                },
+                "upstreamNodes": [
+                  "StatisticsGen",
+                  "schema_importer"
+                ],
+                "executionOptions": {
+                  "cachingOptions": {
+                    "enableCache": true
+                  }
+                }
+              }
+            }
+          ],
+          "runtimeSpec": {
+            "pipelineRoot": {
+              "runtimeParameter": {
+                "name": "pipeline-root",
+                "type": "STRING",
+                "defaultValue": {
+                  "stringValue": "s3://census-income/pipelines/tfx_census_income_pipeline"
+                }
+              }
+            },
+            "pipelineRunId": {
+              "runtimeParameter": {
+                "name": "pipeline-run-id",
+                "type": "STRING"
+              }
+            }
+          },
+          "executionMode": "SYNC",
+          "deploymentConfig": {
+            "@type": "type.googleapis.com/tfx.orchestration.IntermediateDeploymentConfig",
+            "executorSpecs": {
+              "ExampleValidator": {
+                "@type": "type.googleapis.com/tfx.orchestration.executable_spec.PythonClassExecutableSpec",
+                "classPath": "tfx.components.example_validator.executor.Executor"
+              }
+            }
+          }
+        }
+      - --runtime_parameter
+      - pipeline-root=STRING:{{inputs.parameters.pipeline-root}}
+      command: [python, -m, tfx.orchestration.kubeflow.container_entrypoint]
+      env:
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - {name: AWS_ACCESS_KEY_ID, value: XJGhECgFUmY9vtcK}
+      - {name: AWS_SECRET_ACCESS_KEY, value: Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib}
+      - {name: AWS_REGION, value: ap-northeast-1}
+      - {name: S3_ENDPOINT, value: 'http://minio.default.svc.cluster.local'}
+      - {name: S3_USE_HTTPS, value: '0'}
+      - {name: S3_VERIFY_SSL, value: '0'}
+      - name: KFP_POD_NAME
+        valueFrom:
+          fieldRef: {fieldPath: metadata.name}
+      - name: KFP_POD_UID
+        valueFrom:
+          fieldRef: {fieldPath: metadata.uid}
+      - name: KFP_NAMESPACE
+        valueFrom:
+          fieldRef: {fieldPath: metadata.namespace}
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - name: KFP_RUN_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipeline/runid'']'}
+      - name: ENABLE_CACHING
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipelines.kubeflow.org/enable_caching'']'}
+      image: nrt.ocir.io/orasejapan/ocha_demo
+    inputs:
+      parameters:
+      - {name: pipeline-root}
+    outputs:
+      artifacts:
+      - {name: mlpipeline-ui-metadata, path: /mlpipeline-ui-metadata.json}
+    metadata:
+      labels:
+        add-pod-env: "true"
+        pipelines.kubeflow.org/pipeline-sdk-type: tfx
+        pipelines.kubeflow.org/kfp_sdk_version: 1.7.2
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: importexamplegen
+    container:
+      args:
+      - --pipeline_root
+      - '{{inputs.parameters.pipeline-root}}'
+      - --kubeflow_metadata_config
+      - |-
+        {
+          "mysql_db_service_host": {
+            "value": "mysql.kubeflow"
+          },
+          "mysql_db_service_port": {
+            "value": "3306"
+          },
+          "mysql_db_name": {
+            "value": "metadb"
+          },
+          "mysql_db_user": {
+            "value": "root"
+          },
+          "mysql_db_password": {
+            "value": ""
+          },
+          "grpc_config": {
+            "grpc_service_host": {
+              "value": "metadata-grpc-service.kubeflow.svc.cluster.local"
+            },
+            "grpc_service_port": {
+              "value": "8080"
+            }
+          }
+        }
+      - --node_id
+      - ImportExampleGen
+      - --serialized_component
+      - '{"__class__": "NodeWrapper", "__module__": "tfx.orchestration.kubeflow.node_wrapper",
+        "__tfx_object_type__": "jsonable", "_exec_properties": {"custom_config": null,
+        "input_base": "s3://census-income/data/", "input_config": "{{inputs.parameters.input_config}}",
+        "input_fingerprint": "split:single_split,num_files:1,total_bytes:10601607,xor_checksum:1653282886,sum_checksum:1653282886",
+        "output_config": "{\"split_config\": {\"splits\": [{\"hash_buckets\": 2, \"name\":
+        \"train\"}, {\"hash_buckets\": 1, \"name\": \"eval\"}]}}", "output_data_format":
+        6, "output_file_format": 5, "range_config": null, "span": 1, "version": 1},
+        "_id": "ImportExampleGen", "_inputs": {}, "_outputs": {"examples": {"__class__":
+        "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__": "jsonable",
+        "additional_custom_properties": {}, "additional_properties": {}, "artifacts":
+        [{"__artifact_class_module__": "tfx.types.standard_artifacts", "__artifact_class_name__":
+        "Examples", "artifact": {"custom_properties": {"file_format": {"string_value":
+        "tfrecords_gzip"}, "input_fingerprint": {"string_value": "split:single_split,num_files:1,total_bytes:10601607,xor_checksum:1653282886,sum_checksum:1653282886"},
+        "payload_format": {"string_value": "FORMAT_TF_EXAMPLE"}, "span": {"int_value":
+        "1"}, "state": {"string_value": "published"}, "tfx_version": {"string_value":
+        "1.2.0"}, "version": {"int_value": "1"}}, "id": "1", "properties": {"split_names":
+        {"string_value": "[\"train\", \"eval\"]"}}, "state": "LIVE", "type_id": "14",
+        "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/ImportExampleGen/examples/1"},
+        "artifact_type": {"id": "14", "name": "Examples", "properties": {"span": "INT",
+        "split_names": "STRING", "version": "INT"}}}], "output_key": "examples", "producer_component_id":
+        "ImportExampleGen", "type": {"name": "Examples", "properties": {"span": "INT",
+        "split_names": "STRING", "version": "INT"}}}}, "_type": "tfx.components.example_gen.import_example_gen.component.ImportExampleGen",
+        "driver_class": {"__class__": "FileBasedDriver", "__module__": "tfx.components.example_gen.driver",
+        "__tfx_object_type__": "class"}, "executor_spec": {"__class__": "BeamExecutorSpec",
+        "__module__": "tfx.dsl.components.base.executor_spec", "__tfx_object_type__":
+        "jsonable", "beam_pipeline_args": ["--s3_access_key_id=XJGhECgFUmY9vtcK",
+        "--s3_secret_access_key=Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib", "--s3_endpoint_url=http://minio.default.svc.cluster.local",
+        "--s3_region_name=ap-northeast-1", "--s3_verify=0", "--s3_disable_ssl", "--direct_num_workers=1"],
+        "executor_class": {"__class__": "Executor", "__module__": "tfx.components.example_gen.import_example_gen.executor",
+        "__tfx_object_type__": "class"}, "extra_flags": []}}'
+      - --tfx_ir
+      - |-
+        {
+          "pipelineInfo": {
+            "id": "tfx_census_income_pipeline"
+          },
+          "nodes": [
+            {
+              "pipelineNode": {
+                "nodeInfo": {
+                  "type": {
+                    "name": "tfx.components.example_gen.import_example_gen.component.ImportExampleGen"
+                  },
+                  "id": "ImportExampleGen"
+                },
+                "contexts": {
+                  "contexts": [
+                    {
+                      "type": {
+                        "name": "pipeline"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "pipeline_run"
+                      },
+                      "name": {
+                        "runtimeParameter": {
+                          "name": "pipeline-run-id",
+                          "type": "STRING"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "node"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline.ImportExampleGen"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "outputs": {
+                  "outputs": {
+                    "examples": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "Examples",
+                          "properties": {
+                            "span": "INT",
+                            "version": "INT",
+                            "split_names": "STRING"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "parameters": {
+                  "parameters": {
+                    "output_config": {
+                      "fieldValue": {
+                        "stringValue": "{\"split_config\": {\"splits\": [{\"hash_buckets\": 2, \"name\": \"train\"}, {\"hash_buckets\": 1, \"name\": \"eval\"}]}}"
+                      }
+                    },
+                    "input_base": {
+                      "fieldValue": {
+                        "stringValue": "s3://census-income/data/"
+                      }
+                    },
+                    "version": {
+                      "fieldValue": {
+                        "intValue": "1"
+                      }
+                    },
+                    "output_file_format": {
+                      "fieldValue": {
+                        "intValue": "5"
+                      }
+                    },
+                    "output_data_format": {
+                      "fieldValue": {
+                        "intValue": "6"
+                      }
+                    },
+                    "span": {
+                      "fieldValue": {
+                        "intValue": "1"
+                      }
+                    },
+                    "input_config": {
+                      "runtimeParameter": {
+                        "name": "input_config",
+                        "type": "STRING",
+                        "defaultValue": {
+                          "stringValue": "{\"splits\": [{\"name\": \"single_split\", \"pattern\": \"span-{SPAN}/v{VERSION}/*\"}]}"
+                        }
+                      }
+                    },
+                    "input_fingerprint": {
+                      "fieldValue": {
+                        "stringValue": "split:single_split,num_files:1,total_bytes:10601607,xor_checksum:1653282886,sum_checksum:1653282886"
+                      }
+                    }
+                  }
+                },
+                "downstreamNodes": [
+                  "Evaluator",
+                  "StatisticsGen",
+                  "Transform"
+                ],
+                "executionOptions": {
+                  "cachingOptions": {
+                    "enableCache": true
+                  }
+                }
+              }
+            }
+          ],
+          "runtimeSpec": {
+            "pipelineRoot": {
+              "runtimeParameter": {
+                "name": "pipeline-root",
+                "type": "STRING",
+                "defaultValue": {
+                  "stringValue": "s3://census-income/pipelines/tfx_census_income_pipeline"
+                }
+              }
+            },
+            "pipelineRunId": {
+              "runtimeParameter": {
+                "name": "pipeline-run-id",
+                "type": "STRING"
+              }
+            }
+          },
+          "executionMode": "SYNC",
+          "deploymentConfig": {
+            "@type": "type.googleapis.com/tfx.orchestration.IntermediateDeploymentConfig",
+            "executorSpecs": {
+              "ImportExampleGen": {
+                "@type": "type.googleapis.com/tfx.orchestration.executable_spec.BeamExecutableSpec",
+                "pythonExecutorSpec": {
+                  "classPath": "tfx.components.example_gen.import_example_gen.executor.Executor"
+                },
+                "beamPipelineArgs": [
+                  "--s3_access_key_id=XJGhECgFUmY9vtcK",
+                  "--s3_secret_access_key=Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib",
+                  "--s3_endpoint_url=http://minio.default.svc.cluster.local",
+                  "--s3_region_name=ap-northeast-1",
+                  "--s3_verify=0",
+                  "--s3_disable_ssl",
+                  "--direct_num_workers=1"
+                ]
+              }
+            },
+            "customDriverSpecs": {
+              "ImportExampleGen": {
+                "@type": "type.googleapis.com/tfx.orchestration.executable_spec.PythonClassExecutableSpec",
+                "classPath": "tfx.components.example_gen.driver.FileBasedDriver"
+              }
+            }
+          }
+        }
+      - --runtime_parameter
+      - input_config=STRING:{{inputs.parameters.input_config}}
+      - --runtime_parameter
+      - pipeline-root=STRING:{{inputs.parameters.pipeline-root}}
+      command: [python, -m, tfx.orchestration.kubeflow.container_entrypoint]
+      env:
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - {name: AWS_ACCESS_KEY_ID, value: XJGhECgFUmY9vtcK}
+      - {name: AWS_SECRET_ACCESS_KEY, value: Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib}
+      - {name: AWS_REGION, value: ap-northeast-1}
+      - {name: S3_ENDPOINT, value: 'http://minio.default.svc.cluster.local'}
+      - {name: S3_USE_HTTPS, value: '0'}
+      - {name: S3_VERIFY_SSL, value: '0'}
+      - name: KFP_POD_NAME
+        valueFrom:
+          fieldRef: {fieldPath: metadata.name}
+      - name: KFP_POD_UID
+        valueFrom:
+          fieldRef: {fieldPath: metadata.uid}
+      - name: KFP_NAMESPACE
+        valueFrom:
+          fieldRef: {fieldPath: metadata.namespace}
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - name: KFP_RUN_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipeline/runid'']'}
+      - name: ENABLE_CACHING
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipelines.kubeflow.org/enable_caching'']'}
+      image: nrt.ocir.io/orasejapan/ocha_demo
+    inputs:
+      parameters:
+      - {name: input_config}
+      - {name: pipeline-root}
+    outputs:
+      artifacts:
+      - {name: mlpipeline-ui-metadata, path: /mlpipeline-ui-metadata.json}
+    metadata:
+      labels:
+        add-pod-env: "true"
+        pipelines.kubeflow.org/pipeline-sdk-type: tfx
+        pipelines.kubeflow.org/kfp_sdk_version: 1.7.2
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: pusher
+    container:
+      args:
+      - --pipeline_root
+      - '{{inputs.parameters.pipeline-root}}'
+      - --kubeflow_metadata_config
+      - |-
+        {
+          "mysql_db_service_host": {
+            "value": "mysql.kubeflow"
+          },
+          "mysql_db_service_port": {
+            "value": "3306"
+          },
+          "mysql_db_name": {
+            "value": "metadb"
+          },
+          "mysql_db_user": {
+            "value": "root"
+          },
+          "mysql_db_password": {
+            "value": ""
+          },
+          "grpc_config": {
+            "grpc_service_host": {
+              "value": "metadata-grpc-service.kubeflow.svc.cluster.local"
+            },
+            "grpc_service_port": {
+              "value": "8080"
+            }
+          }
+        }
+      - --node_id
+      - Pusher
+      - --serialized_component
+      - '{"__class__": "NodeWrapper", "__module__": "tfx.orchestration.kubeflow.node_wrapper",
+        "__tfx_object_type__": "jsonable", "_exec_properties": {"custom_config": "null",
+        "push_destination": "{{inputs.parameters.push_destination}}"}, "_id": "Pusher",
+        "_inputs": {"model": {"__class__": "Channel", "__module__": "tfx.types.channel",
+        "__tfx_object_type__": "jsonable", "additional_custom_properties": {}, "additional_properties":
+        {}, "artifacts": [{"__artifact_class_module__": "tfx.types.standard_artifacts",
+        "__artifact_class_name__": "Model", "artifact": {"custom_properties": {"name":
+        {"string_value": "model"}, "producer_component": {"string_value": "Trainer"},
+        "state": {"string_value": "published"}, "tfx_version": {"string_value": "1.2.0"}},
+        "id": "21", "state": "LIVE", "type_id": "26", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Trainer/model/14"},
+        "artifact_type": {"id": "26", "name": "Model"}}], "output_key": "model", "producer_component_id":
+        "Trainer", "type": {"name": "Model"}}}, "_outputs": {"pushed_model": {"__class__":
+        "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__": "jsonable",
+        "additional_custom_properties": {}, "additional_properties": {}, "artifacts":
+        [{"__artifact_class_module__": "tfx.types.standard_artifacts", "__artifact_class_name__":
+        "PushedModel", "artifact": {"custom_properties": {"name": {"string_value":
+        "pushed_model"}, "producer_component": {"string_value": "Pusher"}, "pushed":
+        {"int_value": "1"}, "pushed_destination": {"string_value": "s3://census-income/1653283269"},
+        "pushed_version": {"string_value": "1653283269"}, "state": {"string_value":
+        "published"}, "tfx_version": {"string_value": "1.2.0"}}, "id": "29", "state":
+        "LIVE", "type_id": "34", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Pusher/pushed_model/18"},
+        "artifact_type": {"id": "34", "name": "PushedModel"}}], "output_key": "pushed_model",
+        "producer_component_id": "Pusher", "type": {"name": "PushedModel"}}}, "_type":
+        "tfx.components.pusher.component.Pusher", "driver_class": {"__class__": "BaseDriver",
+        "__module__": "tfx.dsl.components.base.base_driver", "__tfx_object_type__":
+        "class"}, "executor_spec": {"__class__": "ExecutorClassSpec", "__module__":
+        "tfx.dsl.components.base.executor_spec", "__tfx_object_type__": "jsonable",
+        "executor_class": {"__class__": "Executor", "__module__": "tfx.components.pusher.executor",
+        "__tfx_object_type__": "class"}, "extra_flags": []}}'
+      - --tfx_ir
+      - |-
+        {
+          "pipelineInfo": {
+            "id": "tfx_census_income_pipeline"
+          },
+          "nodes": [
+            {
+              "pipelineNode": {
+                "nodeInfo": {
+                  "type": {
+                    "name": "tfx.components.pusher.component.Pusher"
+                  },
+                  "id": "Pusher"
+                },
+                "contexts": {
+                  "contexts": [
+                    {
+                      "type": {
+                        "name": "pipeline"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "pipeline_run"
+                      },
+                      "name": {
+                        "runtimeParameter": {
+                          "name": "pipeline-run-id",
+                          "type": "STRING"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "node"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline.Pusher"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "inputs": {
+                  "inputs": {
+                    "model": {
+                      "channels": [
+                        {
+                          "producerNodeQuery": {
+                            "id": "Trainer"
+                          },
+                          "contextQueries": [
+                            {
+                              "type": {
+                                "name": "pipeline"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "pipeline_run"
+                              },
+                              "name": {
+                                "runtimeParameter": {
+                                  "name": "pipeline-run-id",
+                                  "type": "STRING"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "node"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline.Trainer"
+                                }
+                              }
+                            }
+                          ],
+                          "artifactQuery": {
+                            "type": {
+                              "name": "Model"
+                            }
+                          },
+                          "outputKey": "model"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "outputs": {
+                  "outputs": {
+                    "pushed_model": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "PushedModel"
+                        }
+                      }
+                    }
+                  }
+                },
+                "parameters": {
+                  "parameters": {
+                    "custom_config": {
+                      "fieldValue": {
+                        "stringValue": "null"
+                      }
+                    },
+                    "push_destination": {
+                      "runtimeParameter": {
+                        "name": "push_destination",
+                        "type": "STRING",
+                        "defaultValue": {
+                          "stringValue": "{\"filesystem\": {\"base_directory\": \"s3://census-income/serving_model\"}}"
+                        }
+                      }
+                    }
+                  }
+                },
+                "upstreamNodes": [
+                  "Trainer"
+                ],
+                "executionOptions": {
+                  "cachingOptions": {
+                    "enableCache": true
+                  }
+                }
+              }
+            }
+          ],
+          "runtimeSpec": {
+            "pipelineRoot": {
+              "runtimeParameter": {
+                "name": "pipeline-root",
+                "type": "STRING",
+                "defaultValue": {
+                  "stringValue": "s3://census-income/pipelines/tfx_census_income_pipeline"
+                }
+              }
+            },
+            "pipelineRunId": {
+              "runtimeParameter": {
+                "name": "pipeline-run-id",
+                "type": "STRING"
+              }
+            }
+          },
+          "executionMode": "SYNC",
+          "deploymentConfig": {
+            "@type": "type.googleapis.com/tfx.orchestration.IntermediateDeploymentConfig",
+            "executorSpecs": {
+              "Pusher": {
+                "@type": "type.googleapis.com/tfx.orchestration.executable_spec.PythonClassExecutableSpec",
+                "classPath": "tfx.components.pusher.executor.Executor"
+              }
+            }
+          }
+        }
+      - --runtime_parameter
+      - push_destination=STRING:{{inputs.parameters.push_destination}}
+      - --runtime_parameter
+      - pipeline-root=STRING:{{inputs.parameters.pipeline-root}}
+      command: [python, -m, tfx.orchestration.kubeflow.container_entrypoint]
+      env:
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - {name: AWS_ACCESS_KEY_ID, value: XJGhECgFUmY9vtcK}
+      - {name: AWS_SECRET_ACCESS_KEY, value: Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib}
+      - {name: AWS_REGION, value: ap-northeast-1}
+      - {name: S3_ENDPOINT, value: 'http://minio.default.svc.cluster.local'}
+      - {name: S3_USE_HTTPS, value: '0'}
+      - {name: S3_VERIFY_SSL, value: '0'}
+      - name: KFP_POD_NAME
+        valueFrom:
+          fieldRef: {fieldPath: metadata.name}
+      - name: KFP_POD_UID
+        valueFrom:
+          fieldRef: {fieldPath: metadata.uid}
+      - name: KFP_NAMESPACE
+        valueFrom:
+          fieldRef: {fieldPath: metadata.namespace}
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - name: KFP_RUN_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipeline/runid'']'}
+      - name: ENABLE_CACHING
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipelines.kubeflow.org/enable_caching'']'}
+      image: nrt.ocir.io/orasejapan/ocha_demo
+    inputs:
+      parameters:
+      - {name: pipeline-root}
+      - {name: push_destination}
+    outputs:
+      artifacts:
+      - {name: mlpipeline-ui-metadata, path: /mlpipeline-ui-metadata.json}
+    metadata:
+      labels:
+        add-pod-env: "true"
+        pipelines.kubeflow.org/pipeline-sdk-type: tfx
+        pipelines.kubeflow.org/kfp_sdk_version: 1.7.2
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: schema-importer
+    container:
+      args:
+      - --pipeline_root
+      - '{{inputs.parameters.pipeline-root}}'
+      - --kubeflow_metadata_config
+      - |-
+        {
+          "mysql_db_service_host": {
+            "value": "mysql.kubeflow"
+          },
+          "mysql_db_service_port": {
+            "value": "3306"
+          },
+          "mysql_db_name": {
+            "value": "metadb"
+          },
+          "mysql_db_user": {
+            "value": "root"
+          },
+          "mysql_db_password": {
+            "value": ""
+          },
+          "grpc_config": {
+            "grpc_service_host": {
+              "value": "metadata-grpc-service.kubeflow.svc.cluster.local"
+            },
+            "grpc_service_port": {
+              "value": "8080"
+            }
+          }
+        }
+      - --node_id
+      - schema_importer
+      - --serialized_component
+      - '{"__class__": "NodeWrapper", "__module__": "tfx.orchestration.kubeflow.node_wrapper",
+        "__tfx_object_type__": "jsonable", "_exec_properties": {"artifact_uri": "s3://census-income/schema/",
+        "reimport": 0}, "_id": "schema_importer", "_inputs": {}, "_outputs": {"result":
+        {"__class__": "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__":
+        "jsonable", "additional_custom_properties": {}, "additional_properties": {},
+        "artifacts": [{"__artifact_class_module__": "tfx.types.standard_artifacts",
+        "__artifact_class_name__": "Schema", "artifact": {"create_time_since_epoch":
+        "1653282915309", "custom_properties": {"tfx_version": {"string_value": "1.2.0"}},
+        "id": "5", "last_update_time_since_epoch": "1653282915309", "type_id": "18",
+        "uri": "s3://census-income/schema/"}, "artifact_type": {"id": "18", "name":
+        "Schema"}}], "output_key": "result", "producer_component_id": "schema_importer",
+        "type": {"name": "Schema"}}}, "_type": "tfx.dsl.components.common.importer.Importer",
+        "driver_class": {"__class__": "ImporterDriver", "__module__": "tfx.dsl.components.common.importer",
+        "__tfx_object_type__": "class"}, "executor_spec": {"__class__": "ExecutorClassSpec",
+        "__module__": "tfx.dsl.components.base.executor_spec", "__tfx_object_type__":
+        "jsonable", "executor_class": {"__class__": "EmptyExecutor", "__module__":
+        "tfx.dsl.components.base.base_executor", "__tfx_object_type__": "class"},
+        "extra_flags": []}}'
+      - --tfx_ir
+      - |-
+        {
+          "pipelineInfo": {
+            "id": "tfx_census_income_pipeline"
+          },
+          "nodes": [
+            {
+              "pipelineNode": {
+                "nodeInfo": {
+                  "type": {
+                    "name": "tfx.dsl.components.common.importer.Importer"
+                  },
+                  "id": "schema_importer"
+                },
+                "contexts": {
+                  "contexts": [
+                    {
+                      "type": {
+                        "name": "pipeline"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "pipeline_run"
+                      },
+                      "name": {
+                        "runtimeParameter": {
+                          "name": "pipeline-run-id",
+                          "type": "STRING"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "node"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline.schema_importer"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "outputs": {
+                  "outputs": {
+                    "result": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "Schema"
+                        }
+                      }
+                    }
+                  }
+                },
+                "parameters": {
+                  "parameters": {
+                    "reimport": {
+                      "fieldValue": {
+                        "intValue": "0"
+                      }
+                    },
+                    "artifact_uri": {
+                      "fieldValue": {
+                        "stringValue": "s3://census-income/schema/"
+                      }
+                    }
+                  }
+                },
+                "downstreamNodes": [
+                  "ExampleValidator",
+                  "Trainer",
+                  "Transform"
+                ],
+                "executionOptions": {
+                  "cachingOptions": {
+                    "enableCache": true
+                  }
+                }
+              }
+            }
+          ],
+          "runtimeSpec": {
+            "pipelineRoot": {
+              "runtimeParameter": {
+                "name": "pipeline-root",
+                "type": "STRING",
+                "defaultValue": {
+                  "stringValue": "s3://census-income/pipelines/tfx_census_income_pipeline"
+                }
+              }
+            },
+            "pipelineRunId": {
+              "runtimeParameter": {
+                "name": "pipeline-run-id",
+                "type": "STRING"
+              }
+            }
+          },
+          "executionMode": "SYNC",
+          "deploymentConfig": {
+            "@type": "type.googleapis.com/tfx.orchestration.IntermediateDeploymentConfig"
+          }
+        }
+      - --runtime_parameter
+      - pipeline-root=STRING:{{inputs.parameters.pipeline-root}}
+      command: [python, -m, tfx.orchestration.kubeflow.container_entrypoint]
+      env:
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - {name: AWS_ACCESS_KEY_ID, value: XJGhECgFUmY9vtcK}
+      - {name: AWS_SECRET_ACCESS_KEY, value: Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib}
+      - {name: AWS_REGION, value: ap-northeast-1}
+      - {name: S3_ENDPOINT, value: 'http://minio.default.svc.cluster.local'}
+      - {name: S3_USE_HTTPS, value: '0'}
+      - {name: S3_VERIFY_SSL, value: '0'}
+      - name: KFP_POD_NAME
+        valueFrom:
+          fieldRef: {fieldPath: metadata.name}
+      - name: KFP_POD_UID
+        valueFrom:
+          fieldRef: {fieldPath: metadata.uid}
+      - name: KFP_NAMESPACE
+        valueFrom:
+          fieldRef: {fieldPath: metadata.namespace}
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - name: KFP_RUN_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipeline/runid'']'}
+      - name: ENABLE_CACHING
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipelines.kubeflow.org/enable_caching'']'}
+      image: nrt.ocir.io/orasejapan/ocha_demo
+    inputs:
+      parameters:
+      - {name: pipeline-root}
+    outputs:
+      artifacts:
+      - {name: mlpipeline-ui-metadata, path: /mlpipeline-ui-metadata.json}
+    metadata:
+      labels:
+        add-pod-env: "true"
+        pipelines.kubeflow.org/pipeline-sdk-type: tfx
+        pipelines.kubeflow.org/kfp_sdk_version: 1.7.2
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: statisticsgen
+    container:
+      args:
+      - --pipeline_root
+      - '{{inputs.parameters.pipeline-root}}'
+      - --kubeflow_metadata_config
+      - |-
+        {
+          "mysql_db_service_host": {
+            "value": "mysql.kubeflow"
+          },
+          "mysql_db_service_port": {
+            "value": "3306"
+          },
+          "mysql_db_name": {
+            "value": "metadb"
+          },
+          "mysql_db_user": {
+            "value": "root"
+          },
+          "mysql_db_password": {
+            "value": ""
+          },
+          "grpc_config": {
+            "grpc_service_host": {
+              "value": "metadata-grpc-service.kubeflow.svc.cluster.local"
+            },
+            "grpc_service_port": {
+              "value": "8080"
+            }
+          }
+        }
+      - --node_id
+      - StatisticsGen
+      - --serialized_component
+      - '{"__class__": "NodeWrapper", "__module__": "tfx.orchestration.kubeflow.node_wrapper",
+        "__tfx_object_type__": "jsonable", "_exec_properties": {"exclude_splits":
+        "[]", "stats_options_json": null}, "_id": "StatisticsGen", "_inputs": {"examples":
+        {"__class__": "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__":
+        "jsonable", "additional_custom_properties": {}, "additional_properties": {},
+        "artifacts": [{"__artifact_class_module__": "tfx.types.standard_artifacts",
+        "__artifact_class_name__": "Examples", "artifact": {"custom_properties": {"file_format":
+        {"string_value": "tfrecords_gzip"}, "input_fingerprint": {"string_value":
+        "split:single_split,num_files:1,total_bytes:10601607,xor_checksum:1653282886,sum_checksum:1653282886"},
+        "payload_format": {"string_value": "FORMAT_TF_EXAMPLE"}, "span": {"int_value":
+        "1"}, "state": {"string_value": "published"}, "tfx_version": {"string_value":
+        "1.2.0"}, "version": {"int_value": "1"}}, "id": "1", "properties": {"split_names":
+        {"string_value": "[\"train\", \"eval\"]"}}, "state": "LIVE", "type_id": "14",
+        "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/ImportExampleGen/examples/1"},
+        "artifact_type": {"id": "14", "name": "Examples", "properties": {"span": "INT",
+        "split_names": "STRING", "version": "INT"}}}], "output_key": "examples", "producer_component_id":
+        "ImportExampleGen", "type": {"name": "Examples", "properties": {"span": "INT",
+        "split_names": "STRING", "version": "INT"}}}}, "_outputs": {"statistics":
+        {"__class__": "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__":
+        "jsonable", "additional_custom_properties": {}, "additional_properties": {},
+        "artifacts": [{"__artifact_class_module__": "tfx.types.standard_artifacts",
+        "__artifact_class_name__": "ExampleStatistics", "artifact": {"custom_properties":
+        {"name": {"string_value": "statistics"}, "producer_component": {"string_value":
+        "StatisticsGen"}, "state": {"string_value": "published"}, "tfx_version": {"string_value":
+        "1.2.0"}}, "id": "3", "properties": {"split_names": {"string_value": "[\"train\",
+        \"eval\"]"}}, "state": "LIVE", "type_id": "16", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/StatisticsGen/statistics/3"},
+        "artifact_type": {"id": "16", "name": "ExampleStatistics", "properties": {"span":
+        "INT", "split_names": "STRING"}}}], "output_key": "statistics", "producer_component_id":
+        "StatisticsGen", "type": {"name": "ExampleStatistics", "properties": {"span":
+        "INT", "split_names": "STRING"}}}}, "_type": "tfx.components.statistics_gen.component.StatisticsGen",
+        "driver_class": {"__class__": "BaseDriver", "__module__": "tfx.dsl.components.base.base_driver",
+        "__tfx_object_type__": "class"}, "executor_spec": {"__class__": "BeamExecutorSpec",
+        "__module__": "tfx.dsl.components.base.executor_spec", "__tfx_object_type__":
+        "jsonable", "beam_pipeline_args": ["--s3_access_key_id=XJGhECgFUmY9vtcK",
+        "--s3_secret_access_key=Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib", "--s3_endpoint_url=http://minio.default.svc.cluster.local",
+        "--s3_region_name=ap-northeast-1", "--s3_verify=0", "--s3_disable_ssl", "--direct_num_workers=1"],
+        "executor_class": {"__class__": "Executor", "__module__": "tfx.components.statistics_gen.executor",
+        "__tfx_object_type__": "class"}, "extra_flags": []}}'
+      - --tfx_ir
+      - |-
+        {
+          "pipelineInfo": {
+            "id": "tfx_census_income_pipeline"
+          },
+          "nodes": [
+            {
+              "pipelineNode": {
+                "nodeInfo": {
+                  "type": {
+                    "name": "tfx.components.statistics_gen.component.StatisticsGen"
+                  },
+                  "id": "StatisticsGen"
+                },
+                "contexts": {
+                  "contexts": [
+                    {
+                      "type": {
+                        "name": "pipeline"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "pipeline_run"
+                      },
+                      "name": {
+                        "runtimeParameter": {
+                          "name": "pipeline-run-id",
+                          "type": "STRING"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "node"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline.StatisticsGen"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "inputs": {
+                  "inputs": {
+                    "examples": {
+                      "channels": [
+                        {
+                          "producerNodeQuery": {
+                            "id": "ImportExampleGen"
+                          },
+                          "contextQueries": [
+                            {
+                              "type": {
+                                "name": "pipeline"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "pipeline_run"
+                              },
+                              "name": {
+                                "runtimeParameter": {
+                                  "name": "pipeline-run-id",
+                                  "type": "STRING"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "node"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline.ImportExampleGen"
+                                }
+                              }
+                            }
+                          ],
+                          "artifactQuery": {
+                            "type": {
+                              "name": "Examples"
+                            }
+                          },
+                          "outputKey": "examples"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "outputs": {
+                  "outputs": {
+                    "statistics": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "ExampleStatistics",
+                          "properties": {
+                            "span": "INT",
+                            "split_names": "STRING"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "parameters": {
+                  "parameters": {
+                    "exclude_splits": {
+                      "fieldValue": {
+                        "stringValue": "[]"
+                      }
+                    }
+                  }
+                },
+                "upstreamNodes": [
+                  "ImportExampleGen"
+                ],
+                "downstreamNodes": [
+                  "ExampleValidator"
+                ],
+                "executionOptions": {
+                  "cachingOptions": {
+                    "enableCache": true
+                  }
+                }
+              }
+            }
+          ],
+          "runtimeSpec": {
+            "pipelineRoot": {
+              "runtimeParameter": {
+                "name": "pipeline-root",
+                "type": "STRING",
+                "defaultValue": {
+                  "stringValue": "s3://census-income/pipelines/tfx_census_income_pipeline"
+                }
+              }
+            },
+            "pipelineRunId": {
+              "runtimeParameter": {
+                "name": "pipeline-run-id",
+                "type": "STRING"
+              }
+            }
+          },
+          "executionMode": "SYNC",
+          "deploymentConfig": {
+            "@type": "type.googleapis.com/tfx.orchestration.IntermediateDeploymentConfig",
+            "executorSpecs": {
+              "StatisticsGen": {
+                "@type": "type.googleapis.com/tfx.orchestration.executable_spec.BeamExecutableSpec",
+                "pythonExecutorSpec": {
+                  "classPath": "tfx.components.statistics_gen.executor.Executor"
+                },
+                "beamPipelineArgs": [
+                  "--s3_access_key_id=XJGhECgFUmY9vtcK",
+                  "--s3_secret_access_key=Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib",
+                  "--s3_endpoint_url=http://minio.default.svc.cluster.local",
+                  "--s3_region_name=ap-northeast-1",
+                  "--s3_verify=0",
+                  "--s3_disable_ssl",
+                  "--direct_num_workers=1"
+                ]
+              }
+            }
+          }
+        }
+      - --runtime_parameter
+      - pipeline-root=STRING:{{inputs.parameters.pipeline-root}}
+      command: [python, -m, tfx.orchestration.kubeflow.container_entrypoint]
+      env:
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - {name: AWS_ACCESS_KEY_ID, value: XJGhECgFUmY9vtcK}
+      - {name: AWS_SECRET_ACCESS_KEY, value: Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib}
+      - {name: AWS_REGION, value: ap-northeast-1}
+      - {name: S3_ENDPOINT, value: 'http://minio.default.svc.cluster.local'}
+      - {name: S3_USE_HTTPS, value: '0'}
+      - {name: S3_VERIFY_SSL, value: '0'}
+      - name: KFP_POD_NAME
+        valueFrom:
+          fieldRef: {fieldPath: metadata.name}
+      - name: KFP_POD_UID
+        valueFrom:
+          fieldRef: {fieldPath: metadata.uid}
+      - name: KFP_NAMESPACE
+        valueFrom:
+          fieldRef: {fieldPath: metadata.namespace}
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - name: KFP_RUN_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipeline/runid'']'}
+      - name: ENABLE_CACHING
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipelines.kubeflow.org/enable_caching'']'}
+      image: nrt.ocir.io/orasejapan/ocha_demo
+    inputs:
+      parameters:
+      - {name: pipeline-root}
+    outputs:
+      artifacts:
+      - {name: mlpipeline-ui-metadata, path: /mlpipeline-ui-metadata.json}
+    metadata:
+      labels:
+        add-pod-env: "true"
+        pipelines.kubeflow.org/pipeline-sdk-type: tfx
+        pipelines.kubeflow.org/kfp_sdk_version: 1.7.2
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: tfx-census-income-pipeline
+    inputs:
+      parameters:
+      - {name: input_config}
+      - {name: pipeline-root}
+      - {name: push_destination}
+    dag:
+      tasks:
+      - name: evaluator
+        template: evaluator
+        dependencies: [importexamplegen, trainer]
+        arguments:
+          parameters:
+          - {name: pipeline-root, value: '{{inputs.parameters.pipeline-root}}'}
+      - name: examplevalidator
+        template: examplevalidator
+        dependencies: [schema-importer, statisticsgen]
+        arguments:
+          parameters:
+          - {name: pipeline-root, value: '{{inputs.parameters.pipeline-root}}'}
+      - name: importexamplegen
+        template: importexamplegen
+        arguments:
+          parameters:
+          - {name: input_config, value: '{{inputs.parameters.input_config}}'}
+          - {name: pipeline-root, value: '{{inputs.parameters.pipeline-root}}'}
+      - name: pusher
+        template: pusher
+        dependencies: [trainer]
+        arguments:
+          parameters:
+          - {name: pipeline-root, value: '{{inputs.parameters.pipeline-root}}'}
+          - {name: push_destination, value: '{{inputs.parameters.push_destination}}'}
+      - name: schema-importer
+        template: schema-importer
+        arguments:
+          parameters:
+          - {name: pipeline-root, value: '{{inputs.parameters.pipeline-root}}'}
+      - name: statisticsgen
+        template: statisticsgen
+        dependencies: [importexamplegen]
+        arguments:
+          parameters:
+          - {name: pipeline-root, value: '{{inputs.parameters.pipeline-root}}'}
+      - name: trainer
+        template: trainer
+        dependencies: [schema-importer, transform, tuner-importer]
+        arguments:
+          parameters:
+          - {name: pipeline-root, value: '{{inputs.parameters.pipeline-root}}'}
+      - name: transform
+        template: transform
+        dependencies: [importexamplegen, schema-importer]
+        arguments:
+          parameters:
+          - {name: pipeline-root, value: '{{inputs.parameters.pipeline-root}}'}
+      - name: tuner-importer
+        template: tuner-importer
+        arguments:
+          parameters:
+          - {name: pipeline-root, value: '{{inputs.parameters.pipeline-root}}'}
+  - name: trainer
+    container:
+      args:
+      - --pipeline_root
+      - '{{inputs.parameters.pipeline-root}}'
+      - --kubeflow_metadata_config
+      - |-
+        {
+          "mysql_db_service_host": {
+            "value": "mysql.kubeflow"
+          },
+          "mysql_db_service_port": {
+            "value": "3306"
+          },
+          "mysql_db_name": {
+            "value": "metadb"
+          },
+          "mysql_db_user": {
+            "value": "root"
+          },
+          "mysql_db_password": {
+            "value": ""
+          },
+          "grpc_config": {
+            "grpc_service_host": {
+              "value": "metadata-grpc-service.kubeflow.svc.cluster.local"
+            },
+            "grpc_service_port": {
+              "value": "8080"
+            }
+          }
+        }
+      - --node_id
+      - Trainer
+      - --serialized_component
+      - '{"__class__": "NodeWrapper", "__module__": "tfx.orchestration.kubeflow.node_wrapper",
+        "__tfx_object_type__": "jsonable", "_exec_properties": {"custom_config": "{\"epoch\":
+        25}", "eval_args": "{\"num_steps\": 50}", "module_file": "s3://census-income/module/adult_income_trainer_module.py",
+        "run_fn": null, "train_args": "{\"num_steps\": 100}", "trainer_fn": null},
+        "_id": "Trainer", "_inputs": {"examples": {"__class__": "Channel", "__module__":
+        "tfx.types.channel", "__tfx_object_type__": "jsonable", "additional_custom_properties":
+        {}, "additional_properties": {}, "artifacts": [{"__artifact_class_module__":
+        "tfx.types.standard_artifacts", "__artifact_class_name__": "Examples", "artifact":
+        {"custom_properties": {"name": {"string_value": "transformed_examples"}, "producer_component":
+        {"string_value": "Transform"}, "state": {"string_value": "published"}, "tfx_version":
+        {"string_value": "1.2.0"}}, "id": "7", "properties": {"split_names": {"string_value":
+        "[\"train\", \"eval\"]"}}, "state": "LIVE", "type_id": "14", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Transform/transformed_examples/7"},
+        "artifact_type": {"id": "14", "name": "Examples", "properties": {"span": "INT",
+        "split_names": "STRING", "version": "INT"}}}], "output_key": "transformed_examples",
+        "producer_component_id": "Transform", "type": {"name": "Examples", "properties":
+        {"span": "INT", "split_names": "STRING", "version": "INT"}}}, "hyperparameters":
+        {"__class__": "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__":
+        "jsonable", "additional_custom_properties": {}, "additional_properties": {},
+        "artifacts": [{"__artifact_class_module__": "tfx.types.standard_artifacts",
+        "__artifact_class_name__": "HyperParameters", "artifact": {"custom_properties":
+        {"tfx_version": {"string_value": "1.2.0"}}, "id": "20", "type_id": "29", "uri":
+        "s3://census-income/tuner/"}, "artifact_type": {"id": "29", "name": "HyperParameters"}}],
+        "output_key": "result", "producer_component_id": "tuner_importer", "type":
+        {"name": "HyperParameters"}}, "schema": {"__class__": "Channel", "__module__":
+        "tfx.types.channel", "__tfx_object_type__": "jsonable", "additional_custom_properties":
+        {}, "additional_properties": {}, "artifacts": [{"__artifact_class_module__":
+        "tfx.types.standard_artifacts", "__artifact_class_name__": "Schema", "artifact":
+        {"create_time_since_epoch": "1653282915309", "custom_properties": {"tfx_version":
+        {"string_value": "1.2.0"}}, "id": "5", "last_update_time_since_epoch": "1653282915309",
+        "type_id": "18", "uri": "s3://census-income/schema/"}, "artifact_type": {"id":
+        "18", "name": "Schema"}}], "output_key": "result", "producer_component_id":
+        "schema_importer", "type": {"name": "Schema"}}, "transform_graph": {"__class__":
+        "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__": "jsonable",
+        "additional_custom_properties": {}, "additional_properties": {}, "artifacts":
+        [{"__artifact_class_module__": "tfx.types.standard_artifacts", "__artifact_class_name__":
+        "TransformGraph", "artifact": {"custom_properties": {"name": {"string_value":
+        "transform_graph"}, "producer_component": {"string_value": "Transform"}, "state":
+        {"string_value": "published"}, "tfx_version": {"string_value": "1.2.0"}},
+        "id": "6", "state": "LIVE", "type_id": "21", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Transform/transform_graph/7"},
+        "artifact_type": {"id": "21", "name": "TransformGraph"}}], "output_key": "transform_graph",
+        "producer_component_id": "Transform", "type": {"name": "TransformGraph"}}},
+        "_outputs": {"model": {"__class__": "Channel", "__module__": "tfx.types.channel",
+        "__tfx_object_type__": "jsonable", "additional_custom_properties": {}, "additional_properties":
+        {}, "artifacts": [{"__artifact_class_module__": "tfx.types.standard_artifacts",
+        "__artifact_class_name__": "Model", "artifact": {"custom_properties": {"name":
+        {"string_value": "model"}, "producer_component": {"string_value": "Trainer"},
+        "state": {"string_value": "published"}, "tfx_version": {"string_value": "1.2.0"}},
+        "id": "21", "state": "LIVE", "type_id": "26", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Trainer/model/14"},
+        "artifact_type": {"id": "26", "name": "Model"}}], "output_key": "model", "producer_component_id":
+        "Trainer", "type": {"name": "Model"}}, "model_run": {"__class__": "Channel",
+        "__module__": "tfx.types.channel", "__tfx_object_type__": "jsonable", "additional_custom_properties":
+        {}, "additional_properties": {}, "artifacts": [{"__artifact_class_module__":
+        "tfx.types.standard_artifacts", "__artifact_class_name__": "ModelRun", "artifact":
+        {"custom_properties": {"name": {"string_value": "model_run"}, "producer_component":
+        {"string_value": "Trainer"}, "state": {"string_value": "published"}, "tfx_version":
+        {"string_value": "1.2.0"}}, "id": "22", "state": "LIVE", "type_id": "27",
+        "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Trainer/model_run/14"},
+        "artifact_type": {"id": "27", "name": "ModelRun"}}], "output_key": "model_run",
+        "producer_component_id": "Trainer", "type": {"name": "ModelRun"}}}, "_type":
+        "tfx.components.trainer.component.Trainer", "driver_class": {"__class__":
+        "BaseDriver", "__module__": "tfx.dsl.components.base.base_driver", "__tfx_object_type__":
+        "class"}, "executor_spec": {"__class__": "ExecutorClassSpec", "__module__":
+        "tfx.dsl.components.base.executor_spec", "__tfx_object_type__": "jsonable",
+        "executor_class": {"__class__": "GenericExecutor", "__module__": "tfx.components.trainer.executor",
+        "__tfx_object_type__": "class"}, "extra_flags": []}}'
+      - --tfx_ir
+      - |-
+        {
+          "pipelineInfo": {
+            "id": "tfx_census_income_pipeline"
+          },
+          "nodes": [
+            {
+              "pipelineNode": {
+                "nodeInfo": {
+                  "type": {
+                    "name": "tfx.components.trainer.component.Trainer"
+                  },
+                  "id": "Trainer"
+                },
+                "contexts": {
+                  "contexts": [
+                    {
+                      "type": {
+                        "name": "pipeline"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "pipeline_run"
+                      },
+                      "name": {
+                        "runtimeParameter": {
+                          "name": "pipeline-run-id",
+                          "type": "STRING"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "node"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline.Trainer"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "inputs": {
+                  "inputs": {
+                    "examples": {
+                      "channels": [
+                        {
+                          "producerNodeQuery": {
+                            "id": "Transform"
+                          },
+                          "contextQueries": [
+                            {
+                              "type": {
+                                "name": "pipeline"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "pipeline_run"
+                              },
+                              "name": {
+                                "runtimeParameter": {
+                                  "name": "pipeline-run-id",
+                                  "type": "STRING"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "node"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline.Transform"
+                                }
+                              }
+                            }
+                          ],
+                          "artifactQuery": {
+                            "type": {
+                              "name": "Examples"
+                            }
+                          },
+                          "outputKey": "transformed_examples"
+                        }
+                      ]
+                    },
+                    "schema": {
+                      "channels": [
+                        {
+                          "producerNodeQuery": {
+                            "id": "schema_importer"
+                          },
+                          "contextQueries": [
+                            {
+                              "type": {
+                                "name": "pipeline"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "pipeline_run"
+                              },
+                              "name": {
+                                "runtimeParameter": {
+                                  "name": "pipeline-run-id",
+                                  "type": "STRING"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "node"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline.schema_importer"
+                                }
+                              }
+                            }
+                          ],
+                          "artifactQuery": {
+                            "type": {
+                              "name": "Schema"
+                            }
+                          },
+                          "outputKey": "result"
+                        }
+                      ]
+                    },
+                    "hyperparameters": {
+                      "channels": [
+                        {
+                          "producerNodeQuery": {
+                            "id": "tuner_importer"
+                          },
+                          "contextQueries": [
+                            {
+                              "type": {
+                                "name": "pipeline"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "pipeline_run"
+                              },
+                              "name": {
+                                "runtimeParameter": {
+                                  "name": "pipeline-run-id",
+                                  "type": "STRING"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "node"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline.tuner_importer"
+                                }
+                              }
+                            }
+                          ],
+                          "artifactQuery": {
+                            "type": {
+                              "name": "HyperParameters"
+                            }
+                          },
+                          "outputKey": "result"
+                        }
+                      ]
+                    },
+                    "transform_graph": {
+                      "channels": [
+                        {
+                          "producerNodeQuery": {
+                            "id": "Transform"
+                          },
+                          "contextQueries": [
+                            {
+                              "type": {
+                                "name": "pipeline"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "pipeline_run"
+                              },
+                              "name": {
+                                "runtimeParameter": {
+                                  "name": "pipeline-run-id",
+                                  "type": "STRING"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "node"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline.Transform"
+                                }
+                              }
+                            }
+                          ],
+                          "artifactQuery": {
+                            "type": {
+                              "name": "TransformGraph"
+                            }
+                          },
+                          "outputKey": "transform_graph"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "outputs": {
+                  "outputs": {
+                    "model": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "Model"
+                        }
+                      }
+                    },
+                    "model_run": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "ModelRun"
+                        }
+                      }
+                    }
+                  }
+                },
+                "parameters": {
+                  "parameters": {
+                    "custom_config": {
+                      "fieldValue": {
+                        "stringValue": "{\"epoch\": 25}"
+                      }
+                    },
+                    "module_file": {
+                      "fieldValue": {
+                        "stringValue": "s3://census-income/module/adult_income_trainer_module.py"
+                      }
+                    },
+                    "train_args": {
+                      "fieldValue": {
+                        "stringValue": "{\"num_steps\": 100}"
+                      }
+                    },
+                    "eval_args": {
+                      "fieldValue": {
+                        "stringValue": "{\"num_steps\": 50}"
+                      }
+                    }
+                  }
+                },
+                "upstreamNodes": [
+                  "Transform",
+                  "schema_importer",
+                  "tuner_importer"
+                ],
+                "downstreamNodes": [
+                  "Evaluator",
+                  "Pusher"
+                ],
+                "executionOptions": {
+                  "cachingOptions": {
+                    "enableCache": true
+                  }
+                }
+              }
+            }
+          ],
+          "runtimeSpec": {
+            "pipelineRoot": {
+              "runtimeParameter": {
+                "name": "pipeline-root",
+                "type": "STRING",
+                "defaultValue": {
+                  "stringValue": "s3://census-income/pipelines/tfx_census_income_pipeline"
+                }
+              }
+            },
+            "pipelineRunId": {
+              "runtimeParameter": {
+                "name": "pipeline-run-id",
+                "type": "STRING"
+              }
+            }
+          },
+          "executionMode": "SYNC",
+          "deploymentConfig": {
+            "@type": "type.googleapis.com/tfx.orchestration.IntermediateDeploymentConfig",
+            "executorSpecs": {
+              "Trainer": {
+                "@type": "type.googleapis.com/tfx.orchestration.executable_spec.PythonClassExecutableSpec",
+                "classPath": "tfx.components.trainer.executor.GenericExecutor"
+              }
+            }
+          }
+        }
+      - --runtime_parameter
+      - pipeline-root=STRING:{{inputs.parameters.pipeline-root}}
+      command: [python, -m, tfx.orchestration.kubeflow.container_entrypoint]
+      env:
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - {name: AWS_ACCESS_KEY_ID, value: XJGhECgFUmY9vtcK}
+      - {name: AWS_SECRET_ACCESS_KEY, value: Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib}
+      - {name: AWS_REGION, value: ap-northeast-1}
+      - {name: S3_ENDPOINT, value: 'http://minio.default.svc.cluster.local'}
+      - {name: S3_USE_HTTPS, value: '0'}
+      - {name: S3_VERIFY_SSL, value: '0'}
+      - name: KFP_POD_NAME
+        valueFrom:
+          fieldRef: {fieldPath: metadata.name}
+      - name: KFP_POD_UID
+        valueFrom:
+          fieldRef: {fieldPath: metadata.uid}
+      - name: KFP_NAMESPACE
+        valueFrom:
+          fieldRef: {fieldPath: metadata.namespace}
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - name: KFP_RUN_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipeline/runid'']'}
+      - name: ENABLE_CACHING
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipelines.kubeflow.org/enable_caching'']'}
+      image: nrt.ocir.io/orasejapan/ocha_demo
+    inputs:
+      parameters:
+      - {name: pipeline-root}
+    outputs:
+      artifacts:
+      - {name: mlpipeline-ui-metadata, path: /mlpipeline-ui-metadata.json}
+    metadata:
+      labels:
+        add-pod-env: "true"
+        pipelines.kubeflow.org/pipeline-sdk-type: tfx
+        pipelines.kubeflow.org/kfp_sdk_version: 1.7.2
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: transform
+    container:
+      args:
+      - --pipeline_root
+      - '{{inputs.parameters.pipeline-root}}'
+      - --kubeflow_metadata_config
+      - |-
+        {
+          "mysql_db_service_host": {
+            "value": "mysql.kubeflow"
+          },
+          "mysql_db_service_port": {
+            "value": "3306"
+          },
+          "mysql_db_name": {
+            "value": "metadb"
+          },
+          "mysql_db_user": {
+            "value": "root"
+          },
+          "mysql_db_password": {
+            "value": ""
+          },
+          "grpc_config": {
+            "grpc_service_host": {
+              "value": "metadata-grpc-service.kubeflow.svc.cluster.local"
+            },
+            "grpc_service_port": {
+              "value": "8080"
+            }
+          }
+        }
+      - --node_id
+      - Transform
+      - --serialized_component
+      - '{"__class__": "NodeWrapper", "__module__": "tfx.orchestration.kubeflow.node_wrapper",
+        "__tfx_object_type__": "jsonable", "_exec_properties": {"custom_config": "null",
+        "disable_statistics": 0, "force_tf_compat_v1": 0, "module_file": "s3://census-income/module/adult_income_transorm_module.py",
+        "preprocessing_fn": null, "splits_config": null, "stats_options_updater_fn":
+        null}, "_id": "Transform", "_inputs": {"examples": {"__class__": "Channel",
+        "__module__": "tfx.types.channel", "__tfx_object_type__": "jsonable", "additional_custom_properties":
+        {}, "additional_properties": {}, "artifacts": [{"__artifact_class_module__":
+        "tfx.types.standard_artifacts", "__artifact_class_name__": "Examples", "artifact":
+        {"custom_properties": {"file_format": {"string_value": "tfrecords_gzip"},
+        "input_fingerprint": {"string_value": "split:single_split,num_files:1,total_bytes:10601607,xor_checksum:1653282886,sum_checksum:1653282886"},
+        "payload_format": {"string_value": "FORMAT_TF_EXAMPLE"}, "span": {"int_value":
+        "1"}, "state": {"string_value": "published"}, "tfx_version": {"string_value":
+        "1.2.0"}, "version": {"int_value": "1"}}, "id": "1", "properties": {"split_names":
+        {"string_value": "[\"train\", \"eval\"]"}}, "state": "LIVE", "type_id": "14",
+        "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/ImportExampleGen/examples/1"},
+        "artifact_type": {"id": "14", "name": "Examples", "properties": {"span": "INT",
+        "split_names": "STRING", "version": "INT"}}}], "output_key": "examples", "producer_component_id":
+        "ImportExampleGen", "type": {"name": "Examples", "properties": {"span": "INT",
+        "split_names": "STRING", "version": "INT"}}}, "schema": {"__class__": "Channel",
+        "__module__": "tfx.types.channel", "__tfx_object_type__": "jsonable", "additional_custom_properties":
+        {}, "additional_properties": {}, "artifacts": [{"__artifact_class_module__":
+        "tfx.types.standard_artifacts", "__artifact_class_name__": "Schema", "artifact":
+        {"create_time_since_epoch": "1653282915309", "custom_properties": {"tfx_version":
+        {"string_value": "1.2.0"}}, "id": "5", "last_update_time_since_epoch": "1653282915309",
+        "type_id": "18", "uri": "s3://census-income/schema/"}, "artifact_type": {"id":
+        "18", "name": "Schema"}}], "output_key": "result", "producer_component_id":
+        "schema_importer", "type": {"name": "Schema"}}}, "_outputs": {"post_transform_anomalies":
+        {"__class__": "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__":
+        "jsonable", "additional_custom_properties": {}, "additional_properties": {},
+        "artifacts": [{"__artifact_class_module__": "tfx.types.standard_artifacts",
+        "__artifact_class_name__": "ExampleAnomalies", "artifact": {"custom_properties":
+        {"name": {"string_value": "post_transform_anomalies"}, "producer_component":
+        {"string_value": "Transform"}, "state": {"string_value": "published"}, "tfx_version":
+        {"string_value": "1.2.0"}}, "id": "13", "state": "LIVE", "type_id": "23",
+        "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Transform/post_transform_anomalies/7"},
+        "artifact_type": {"id": "23", "name": "ExampleAnomalies", "properties": {"span":
+        "INT", "split_names": "STRING"}}}], "output_key": "post_transform_anomalies",
+        "producer_component_id": "Transform", "type": {"name": "ExampleAnomalies",
+        "properties": {"span": "INT", "split_names": "STRING"}}}, "post_transform_schema":
+        {"__class__": "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__":
+        "jsonable", "additional_custom_properties": {}, "additional_properties": {},
+        "artifacts": [{"__artifact_class_module__": "tfx.types.standard_artifacts",
+        "__artifact_class_name__": "Schema", "artifact": {"custom_properties": {"name":
+        {"string_value": "post_transform_schema"}, "producer_component": {"string_value":
+        "Transform"}, "state": {"string_value": "published"}, "tfx_version": {"string_value":
+        "1.2.0"}}, "id": "11", "state": "LIVE", "type_id": "18", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Transform/post_transform_schema/7"},
+        "artifact_type": {"id": "18", "name": "Schema"}}], "output_key": "post_transform_schema",
+        "producer_component_id": "Transform", "type": {"name": "Schema"}}, "post_transform_stats":
+        {"__class__": "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__":
+        "jsonable", "additional_custom_properties": {}, "additional_properties": {},
+        "artifacts": [{"__artifact_class_module__": "tfx.types.standard_artifacts",
+        "__artifact_class_name__": "ExampleStatistics", "artifact": {"custom_properties":
+        {"name": {"string_value": "post_transform_stats"}, "producer_component": {"string_value":
+        "Transform"}, "state": {"string_value": "published"}, "tfx_version": {"string_value":
+        "1.2.0"}}, "id": "12", "state": "LIVE", "type_id": "16", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Transform/post_transform_stats/7"},
+        "artifact_type": {"id": "16", "name": "ExampleStatistics", "properties": {"span":
+        "INT", "split_names": "STRING"}}}], "output_key": "post_transform_stats",
+        "producer_component_id": "Transform", "type": {"name": "ExampleStatistics",
+        "properties": {"span": "INT", "split_names": "STRING"}}}, "pre_transform_schema":
+        {"__class__": "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__":
+        "jsonable", "additional_custom_properties": {}, "additional_properties": {},
+        "artifacts": [{"__artifact_class_module__": "tfx.types.standard_artifacts",
+        "__artifact_class_name__": "Schema", "artifact": {"custom_properties": {"name":
+        {"string_value": "pre_transform_schema"}, "producer_component": {"string_value":
+        "Transform"}, "state": {"string_value": "published"}, "tfx_version": {"string_value":
+        "1.2.0"}}, "id": "9", "state": "LIVE", "type_id": "18", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Transform/pre_transform_schema/7"},
+        "artifact_type": {"id": "18", "name": "Schema"}}], "output_key": "pre_transform_schema",
+        "producer_component_id": "Transform", "type": {"name": "Schema"}}, "pre_transform_stats":
+        {"__class__": "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__":
+        "jsonable", "additional_custom_properties": {}, "additional_properties": {},
+        "artifacts": [{"__artifact_class_module__": "tfx.types.standard_artifacts",
+        "__artifact_class_name__": "ExampleStatistics", "artifact": {"custom_properties":
+        {"name": {"string_value": "pre_transform_stats"}, "producer_component": {"string_value":
+        "Transform"}, "state": {"string_value": "published"}, "tfx_version": {"string_value":
+        "1.2.0"}}, "id": "10", "state": "LIVE", "type_id": "16", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Transform/pre_transform_stats/7"},
+        "artifact_type": {"id": "16", "name": "ExampleStatistics", "properties": {"span":
+        "INT", "split_names": "STRING"}}}], "output_key": "pre_transform_stats", "producer_component_id":
+        "Transform", "type": {"name": "ExampleStatistics", "properties": {"span":
+        "INT", "split_names": "STRING"}}}, "transform_graph": {"__class__": "Channel",
+        "__module__": "tfx.types.channel", "__tfx_object_type__": "jsonable", "additional_custom_properties":
+        {}, "additional_properties": {}, "artifacts": [{"__artifact_class_module__":
+        "tfx.types.standard_artifacts", "__artifact_class_name__": "TransformGraph",
+        "artifact": {"custom_properties": {"name": {"string_value": "transform_graph"},
+        "producer_component": {"string_value": "Transform"}, "state": {"string_value":
+        "published"}, "tfx_version": {"string_value": "1.2.0"}}, "id": "6", "state":
+        "LIVE", "type_id": "21", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Transform/transform_graph/7"},
+        "artifact_type": {"id": "21", "name": "TransformGraph"}}], "output_key": "transform_graph",
+        "producer_component_id": "Transform", "type": {"name": "TransformGraph"}},
+        "transformed_examples": {"__class__": "Channel", "__module__": "tfx.types.channel",
+        "__tfx_object_type__": "jsonable", "additional_custom_properties": {}, "additional_properties":
+        {}, "artifacts": [{"__artifact_class_module__": "tfx.types.standard_artifacts",
+        "__artifact_class_name__": "Examples", "artifact": {"custom_properties": {"name":
+        {"string_value": "transformed_examples"}, "producer_component": {"string_value":
+        "Transform"}, "state": {"string_value": "published"}, "tfx_version": {"string_value":
+        "1.2.0"}}, "id": "7", "properties": {"split_names": {"string_value": "[\"train\",
+        \"eval\"]"}}, "state": "LIVE", "type_id": "14", "uri": "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Transform/transformed_examples/7"},
+        "artifact_type": {"id": "14", "name": "Examples", "properties": {"span": "INT",
+        "split_names": "STRING", "version": "INT"}}}], "output_key": "transformed_examples",
+        "producer_component_id": "Transform", "type": {"name": "Examples", "properties":
+        {"span": "INT", "split_names": "STRING", "version": "INT"}}}, "updated_analyzer_cache":
+        {"__class__": "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__":
+        "jsonable", "additional_custom_properties": {}, "additional_properties": {},
+        "artifacts": [{"__artifact_class_module__": "tfx.types.standard_artifacts",
+        "__artifact_class_name__": "TransformCache", "artifact": {"custom_properties":
+        {"name": {"string_value": "updated_analyzer_cache"}, "producer_component":
+        {"string_value": "Transform"}, "state": {"string_value": "published"}, "tfx_version":
+        {"string_value": "1.2.0"}}, "id": "8", "state": "LIVE", "type_id": "22", "uri":
+        "/tmp/tfx-interactive-2022-05-23T05_14_41.408365-a72qo05b/Transform/updated_analyzer_cache/7"},
+        "artifact_type": {"id": "22", "name": "TransformCache"}}], "output_key": "updated_analyzer_cache",
+        "producer_component_id": "Transform", "type": {"name": "TransformCache"}}},
+        "_type": "tfx.components.transform.component.Transform", "driver_class": {"__class__":
+        "BaseDriver", "__module__": "tfx.dsl.components.base.base_driver", "__tfx_object_type__":
+        "class"}, "executor_spec": {"__class__": "BeamExecutorSpec", "__module__":
+        "tfx.dsl.components.base.executor_spec", "__tfx_object_type__": "jsonable",
+        "beam_pipeline_args": ["--s3_access_key_id=XJGhECgFUmY9vtcK", "--s3_secret_access_key=Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib",
+        "--s3_endpoint_url=http://minio.default.svc.cluster.local", "--s3_region_name=ap-northeast-1",
+        "--s3_verify=0", "--s3_disable_ssl", "--direct_num_workers=1"], "executor_class":
+        {"__class__": "Executor", "__module__": "tfx.components.transform.executor",
+        "__tfx_object_type__": "class"}, "extra_flags": []}}'
+      - --tfx_ir
+      - |-
+        {
+          "pipelineInfo": {
+            "id": "tfx_census_income_pipeline"
+          },
+          "nodes": [
+            {
+              "pipelineNode": {
+                "nodeInfo": {
+                  "type": {
+                    "name": "tfx.components.transform.component.Transform"
+                  },
+                  "id": "Transform"
+                },
+                "contexts": {
+                  "contexts": [
+                    {
+                      "type": {
+                        "name": "pipeline"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "pipeline_run"
+                      },
+                      "name": {
+                        "runtimeParameter": {
+                          "name": "pipeline-run-id",
+                          "type": "STRING"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "node"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline.Transform"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "inputs": {
+                  "inputs": {
+                    "examples": {
+                      "channels": [
+                        {
+                          "producerNodeQuery": {
+                            "id": "ImportExampleGen"
+                          },
+                          "contextQueries": [
+                            {
+                              "type": {
+                                "name": "pipeline"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "pipeline_run"
+                              },
+                              "name": {
+                                "runtimeParameter": {
+                                  "name": "pipeline-run-id",
+                                  "type": "STRING"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "node"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline.ImportExampleGen"
+                                }
+                              }
+                            }
+                          ],
+                          "artifactQuery": {
+                            "type": {
+                              "name": "Examples"
+                            }
+                          },
+                          "outputKey": "examples"
+                        }
+                      ]
+                    },
+                    "schema": {
+                      "channels": [
+                        {
+                          "producerNodeQuery": {
+                            "id": "schema_importer"
+                          },
+                          "contextQueries": [
+                            {
+                              "type": {
+                                "name": "pipeline"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "pipeline_run"
+                              },
+                              "name": {
+                                "runtimeParameter": {
+                                  "name": "pipeline-run-id",
+                                  "type": "STRING"
+                                }
+                              }
+                            },
+                            {
+                              "type": {
+                                "name": "node"
+                              },
+                              "name": {
+                                "fieldValue": {
+                                  "stringValue": "tfx_census_income_pipeline.schema_importer"
+                                }
+                              }
+                            }
+                          ],
+                          "artifactQuery": {
+                            "type": {
+                              "name": "Schema"
+                            }
+                          },
+                          "outputKey": "result"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "outputs": {
+                  "outputs": {
+                    "post_transform_anomalies": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "ExampleAnomalies",
+                          "properties": {
+                            "split_names": "STRING",
+                            "span": "INT"
+                          }
+                        }
+                      }
+                    },
+                    "updated_analyzer_cache": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "TransformCache"
+                        }
+                      }
+                    },
+                    "pre_transform_schema": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "Schema"
+                        }
+                      }
+                    },
+                    "transformed_examples": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "Examples",
+                          "properties": {
+                            "span": "INT",
+                            "split_names": "STRING",
+                            "version": "INT"
+                          }
+                        }
+                      }
+                    },
+                    "pre_transform_stats": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "ExampleStatistics",
+                          "properties": {
+                            "span": "INT",
+                            "split_names": "STRING"
+                          }
+                        }
+                      }
+                    },
+                    "post_transform_schema": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "Schema"
+                        }
+                      }
+                    },
+                    "transform_graph": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "TransformGraph"
+                        }
+                      }
+                    },
+                    "post_transform_stats": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "ExampleStatistics",
+                          "properties": {
+                            "span": "INT",
+                            "split_names": "STRING"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "parameters": {
+                  "parameters": {
+                    "custom_config": {
+                      "fieldValue": {
+                        "stringValue": "null"
+                      }
+                    },
+                    "disable_statistics": {
+                      "fieldValue": {
+                        "intValue": "0"
+                      }
+                    },
+                    "force_tf_compat_v1": {
+                      "fieldValue": {
+                        "intValue": "0"
+                      }
+                    },
+                    "module_file": {
+                      "fieldValue": {
+                        "stringValue": "s3://census-income/module/adult_income_transorm_module.py"
+                      }
+                    }
+                  }
+                },
+                "upstreamNodes": [
+                  "ImportExampleGen",
+                  "schema_importer"
+                ],
+                "downstreamNodes": [
+                  "Trainer"
+                ],
+                "executionOptions": {
+                  "cachingOptions": {
+                    "enableCache": true
+                  }
+                }
+              }
+            }
+          ],
+          "runtimeSpec": {
+            "pipelineRoot": {
+              "runtimeParameter": {
+                "name": "pipeline-root",
+                "type": "STRING",
+                "defaultValue": {
+                  "stringValue": "s3://census-income/pipelines/tfx_census_income_pipeline"
+                }
+              }
+            },
+            "pipelineRunId": {
+              "runtimeParameter": {
+                "name": "pipeline-run-id",
+                "type": "STRING"
+              }
+            }
+          },
+          "executionMode": "SYNC",
+          "deploymentConfig": {
+            "@type": "type.googleapis.com/tfx.orchestration.IntermediateDeploymentConfig",
+            "executorSpecs": {
+              "Transform": {
+                "@type": "type.googleapis.com/tfx.orchestration.executable_spec.BeamExecutableSpec",
+                "pythonExecutorSpec": {
+                  "classPath": "tfx.components.transform.executor.Executor"
+                },
+                "beamPipelineArgs": [
+                  "--s3_access_key_id=XJGhECgFUmY9vtcK",
+                  "--s3_secret_access_key=Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib",
+                  "--s3_endpoint_url=http://minio.default.svc.cluster.local",
+                  "--s3_region_name=ap-northeast-1",
+                  "--s3_verify=0",
+                  "--s3_disable_ssl",
+                  "--direct_num_workers=1"
+                ]
+              }
+            }
+          }
+        }
+      - --runtime_parameter
+      - pipeline-root=STRING:{{inputs.parameters.pipeline-root}}
+      command: [python, -m, tfx.orchestration.kubeflow.container_entrypoint]
+      env:
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - {name: AWS_ACCESS_KEY_ID, value: XJGhECgFUmY9vtcK}
+      - {name: AWS_SECRET_ACCESS_KEY, value: Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib}
+      - {name: AWS_REGION, value: ap-northeast-1}
+      - {name: S3_ENDPOINT, value: 'http://minio.default.svc.cluster.local'}
+      - {name: S3_USE_HTTPS, value: '0'}
+      - {name: S3_VERIFY_SSL, value: '0'}
+      - name: KFP_POD_NAME
+        valueFrom:
+          fieldRef: {fieldPath: metadata.name}
+      - name: KFP_POD_UID
+        valueFrom:
+          fieldRef: {fieldPath: metadata.uid}
+      - name: KFP_NAMESPACE
+        valueFrom:
+          fieldRef: {fieldPath: metadata.namespace}
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - name: KFP_RUN_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipeline/runid'']'}
+      - name: ENABLE_CACHING
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipelines.kubeflow.org/enable_caching'']'}
+      image: nrt.ocir.io/orasejapan/ocha_demo
+    inputs:
+      parameters:
+      - {name: pipeline-root}
+    outputs:
+      artifacts:
+      - {name: mlpipeline-ui-metadata, path: /mlpipeline-ui-metadata.json}
+    metadata:
+      labels:
+        add-pod-env: "true"
+        pipelines.kubeflow.org/pipeline-sdk-type: tfx
+        pipelines.kubeflow.org/kfp_sdk_version: 1.7.2
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: tuner-importer
+    container:
+      args:
+      - --pipeline_root
+      - '{{inputs.parameters.pipeline-root}}'
+      - --kubeflow_metadata_config
+      - |-
+        {
+          "mysql_db_service_host": {
+            "value": "mysql.kubeflow"
+          },
+          "mysql_db_service_port": {
+            "value": "3306"
+          },
+          "mysql_db_name": {
+            "value": "metadb"
+          },
+          "mysql_db_user": {
+            "value": "root"
+          },
+          "mysql_db_password": {
+            "value": ""
+          },
+          "grpc_config": {
+            "grpc_service_host": {
+              "value": "metadata-grpc-service.kubeflow.svc.cluster.local"
+            },
+            "grpc_service_port": {
+              "value": "8080"
+            }
+          }
+        }
+      - --node_id
+      - tuner_importer
+      - --serialized_component
+      - '{"__class__": "NodeWrapper", "__module__": "tfx.orchestration.kubeflow.node_wrapper",
+        "__tfx_object_type__": "jsonable", "_exec_properties": {"artifact_uri": "s3://census-income/tuner/",
+        "reimport": 0}, "_id": "tuner_importer", "_inputs": {}, "_outputs": {"result":
+        {"__class__": "Channel", "__module__": "tfx.types.channel", "__tfx_object_type__":
+        "jsonable", "additional_custom_properties": {}, "additional_properties": {},
+        "artifacts": [{"__artifact_class_module__": "tfx.types.standard_artifacts",
+        "__artifact_class_name__": "HyperParameters", "artifact": {"custom_properties":
+        {"tfx_version": {"string_value": "1.2.0"}}, "id": "20", "type_id": "29", "uri":
+        "s3://census-income/tuner/"}, "artifact_type": {"id": "29", "name": "HyperParameters"}}],
+        "output_key": "result", "producer_component_id": "tuner_importer", "type":
+        {"name": "HyperParameters"}}}, "_type": "tfx.dsl.components.common.importer.Importer",
+        "driver_class": {"__class__": "ImporterDriver", "__module__": "tfx.dsl.components.common.importer",
+        "__tfx_object_type__": "class"}, "executor_spec": {"__class__": "ExecutorClassSpec",
+        "__module__": "tfx.dsl.components.base.executor_spec", "__tfx_object_type__":
+        "jsonable", "executor_class": {"__class__": "EmptyExecutor", "__module__":
+        "tfx.dsl.components.base.base_executor", "__tfx_object_type__": "class"},
+        "extra_flags": []}}'
+      - --tfx_ir
+      - |-
+        {
+          "pipelineInfo": {
+            "id": "tfx_census_income_pipeline"
+          },
+          "nodes": [
+            {
+              "pipelineNode": {
+                "nodeInfo": {
+                  "type": {
+                    "name": "tfx.dsl.components.common.importer.Importer"
+                  },
+                  "id": "tuner_importer"
+                },
+                "contexts": {
+                  "contexts": [
+                    {
+                      "type": {
+                        "name": "pipeline"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "pipeline_run"
+                      },
+                      "name": {
+                        "runtimeParameter": {
+                          "name": "pipeline-run-id",
+                          "type": "STRING"
+                        }
+                      }
+                    },
+                    {
+                      "type": {
+                        "name": "node"
+                      },
+                      "name": {
+                        "fieldValue": {
+                          "stringValue": "tfx_census_income_pipeline.tuner_importer"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "outputs": {
+                  "outputs": {
+                    "result": {
+                      "artifactSpec": {
+                        "type": {
+                          "name": "HyperParameters"
+                        }
+                      }
+                    }
+                  }
+                },
+                "parameters": {
+                  "parameters": {
+                    "reimport": {
+                      "fieldValue": {
+                        "intValue": "0"
+                      }
+                    },
+                    "artifact_uri": {
+                      "fieldValue": {
+                        "stringValue": "s3://census-income/tuner/"
+                      }
+                    }
+                  }
+                },
+                "downstreamNodes": [
+                  "Trainer"
+                ],
+                "executionOptions": {
+                  "cachingOptions": {
+                    "enableCache": true
+                  }
+                }
+              }
+            }
+          ],
+          "runtimeSpec": {
+            "pipelineRoot": {
+              "runtimeParameter": {
+                "name": "pipeline-root",
+                "type": "STRING",
+                "defaultValue": {
+                  "stringValue": "s3://census-income/pipelines/tfx_census_income_pipeline"
+                }
+              }
+            },
+            "pipelineRunId": {
+              "runtimeParameter": {
+                "name": "pipeline-run-id",
+                "type": "STRING"
+              }
+            }
+          },
+          "executionMode": "SYNC",
+          "deploymentConfig": {
+            "@type": "type.googleapis.com/tfx.orchestration.IntermediateDeploymentConfig"
+          }
+        }
+      - --runtime_parameter
+      - pipeline-root=STRING:{{inputs.parameters.pipeline-root}}
+      command: [python, -m, tfx.orchestration.kubeflow.container_entrypoint]
+      env:
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - {name: AWS_ACCESS_KEY_ID, value: XJGhECgFUmY9vtcK}
+      - {name: AWS_SECRET_ACCESS_KEY, value: Uyz8YLhpy3PAbDCSXIRFnTM1HPQ7K4Ib}
+      - {name: AWS_REGION, value: ap-northeast-1}
+      - {name: S3_ENDPOINT, value: 'http://minio.default.svc.cluster.local'}
+      - {name: S3_USE_HTTPS, value: '0'}
+      - {name: S3_VERIFY_SSL, value: '0'}
+      - name: KFP_POD_NAME
+        valueFrom:
+          fieldRef: {fieldPath: metadata.name}
+      - name: KFP_POD_UID
+        valueFrom:
+          fieldRef: {fieldPath: metadata.uid}
+      - name: KFP_NAMESPACE
+        valueFrom:
+          fieldRef: {fieldPath: metadata.namespace}
+      - name: WORKFLOW_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''workflows.argoproj.io/workflow'']'}
+      - name: KFP_RUN_ID
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipeline/runid'']'}
+      - name: ENABLE_CACHING
+        valueFrom:
+          fieldRef: {fieldPath: 'metadata.labels[''pipelines.kubeflow.org/enable_caching'']'}
+      image: nrt.ocir.io/orasejapan/ocha_demo
+    inputs:
+      parameters:
+      - {name: pipeline-root}
+    outputs:
+      artifacts:
+      - {name: mlpipeline-ui-metadata, path: /mlpipeline-ui-metadata.json}
+    metadata:
+      labels:
+        add-pod-env: "true"
+        pipelines.kubeflow.org/pipeline-sdk-type: tfx
+        pipelines.kubeflow.org/kfp_sdk_version: 1.7.2
+        pipelines.kubeflow.org/enable_caching: "true"
+  arguments:
+    parameters:
+    - {name: pipeline-root, value: 's3://census-income/pipelines/tfx_census_income_pipeline'}
+    - {name: input_config, value: '{"splits": [{"name": "single_split", "pattern":
+        "span-{SPAN}/v{VERSION}/*"}]}'}
+    - {name: push_destination, value: '{"filesystem": {"base_directory": "s3://census-income/serving_model"}}'}
+  serviceAccountName: pipeline-runner

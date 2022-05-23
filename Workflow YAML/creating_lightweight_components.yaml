@@ -1,0 +1,437 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: creatinglightweightcomponents-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.7.2, pipelines.kubeflow.org/pipeline_compilation_time: '2022-05-23T05:48:34.797481',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "Creating lightweight components.",
+      "inputs": [{"default": "1", "name": "a", "optional": true}, {"default": "2",
+      "name": "b", "optional": true}, {"default": "3", "name": "c", "optional": true},
+      {"default": "4", "name": "d", "optional": true}, {"default": "Completed!", "name":
+      "what", "optional": true}], "name": "CreatingLightWeightComponents"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.7.2}
+spec:
+  entrypoint: creatinglightweightcomponents
+  templates:
+  - name: add
+    container:
+      args: [--a, '{{inputs.parameters.a}}', --b, '{{inputs.parameters.b}}', '----output-paths',
+        /tmp/outputs/Output/data]
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - |
+        def add(a, b):
+            print("Adding two values %s and %s" %(a, b))
+            return a + b
+
+        def _serialize_float(float_value: float) -> str:
+            if isinstance(float_value, str):
+                return float_value
+            if not isinstance(float_value, (float, int)):
+                raise TypeError('Value "{}" has type "{}" instead of float.'.format(str(float_value), str(type(float_value))))
+            return str(float_value)
+
+        import argparse
+        _parser = argparse.ArgumentParser(prog='Add', description='')
+        _parser.add_argument("--a", dest="a", type=float, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("--b", dest="b", type=float, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("----output-paths", dest="_output_paths", type=str, nargs=1)
+        _parsed_args = vars(_parser.parse_args())
+        _output_files = _parsed_args.pop("_output_paths", [])
+
+        _outputs = add(**_parsed_args)
+
+        _outputs = [_outputs]
+
+        _output_serializers = [
+            _serialize_float,
+
+        ]
+
+        import os
+        for idx, output_file in enumerate(_output_files):
+            try:
+                os.makedirs(os.path.dirname(output_file))
+            except OSError:
+                pass
+            with open(output_file, 'w') as f:
+                f.write(_output_serializers[idx](_outputs[idx]))
+      image: python:alpine
+    inputs:
+      parameters:
+      - {name: a}
+      - {name: b}
+    outputs:
+      artifacts:
+      - {name: add-Output, path: /tmp/outputs/Output/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.7.2
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--a", {"inputValue": "a"}, "--b", {"inputValue": "b"}, "----output-paths",
+          {"outputPath": "Output"}], "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def add(a, b):\n    print(\"Adding two values %s and %s\" %(a, b))\n    return
+          a + b\n\ndef _serialize_float(float_value: float) -> str:\n    if isinstance(float_value,
+          str):\n        return float_value\n    if not isinstance(float_value, (float,
+          int)):\n        raise TypeError(''Value \"{}\" has type \"{}\" instead of
+          float.''.format(str(float_value), str(type(float_value))))\n    return str(float_value)\n\nimport
+          argparse\n_parser = argparse.ArgumentParser(prog=''Add'', description='''')\n_parser.add_argument(\"--a\",
+          dest=\"a\", type=float, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--b\",
+          dest=\"b\", type=float, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\",
+          dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = add(**_parsed_args)\n\n_outputs
+          = [_outputs]\n\n_output_serializers = [\n    _serialize_float,\n\n]\n\nimport
+          os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "python:alpine"}}, "inputs": [{"name": "a", "type": "Float"}, {"name":
+          "b", "type": "Float"}], "name": "Add", "outputs": [{"name": "Output", "type":
+          "Float"}]}', pipelines.kubeflow.org/component_ref: '{}', pipelines.kubeflow.org/arguments.parameters: '{"a":
+          "{{inputs.parameters.a}}", "b": "{{inputs.parameters.b}}"}'}
+  - name: add-2
+    container:
+      args: [--a, '{{inputs.parameters.b}}', --b, '{{inputs.parameters.c}}', '----output-paths',
+        /tmp/outputs/Output/data]
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - |
+        def add(a, b):
+            print("Adding two values %s and %s" %(a, b))
+            return a + b
+
+        def _serialize_float(float_value: float) -> str:
+            if isinstance(float_value, str):
+                return float_value
+            if not isinstance(float_value, (float, int)):
+                raise TypeError('Value "{}" has type "{}" instead of float.'.format(str(float_value), str(type(float_value))))
+            return str(float_value)
+
+        import argparse
+        _parser = argparse.ArgumentParser(prog='Add', description='')
+        _parser.add_argument("--a", dest="a", type=float, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("--b", dest="b", type=float, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("----output-paths", dest="_output_paths", type=str, nargs=1)
+        _parsed_args = vars(_parser.parse_args())
+        _output_files = _parsed_args.pop("_output_paths", [])
+
+        _outputs = add(**_parsed_args)
+
+        _outputs = [_outputs]
+
+        _output_serializers = [
+            _serialize_float,
+
+        ]
+
+        import os
+        for idx, output_file in enumerate(_output_files):
+            try:
+                os.makedirs(os.path.dirname(output_file))
+            except OSError:
+                pass
+            with open(output_file, 'w') as f:
+                f.write(_output_serializers[idx](_outputs[idx]))
+      image: python:alpine
+    inputs:
+      parameters:
+      - {name: b}
+      - {name: c}
+    outputs:
+      parameters:
+      - name: add-2-Output
+        valueFrom: {path: /tmp/outputs/Output/data}
+      artifacts:
+      - {name: add-2-Output, path: /tmp/outputs/Output/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.7.2
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--a", {"inputValue": "a"}, "--b", {"inputValue": "b"}, "----output-paths",
+          {"outputPath": "Output"}], "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def add(a, b):\n    print(\"Adding two values %s and %s\" %(a, b))\n    return
+          a + b\n\ndef _serialize_float(float_value: float) -> str:\n    if isinstance(float_value,
+          str):\n        return float_value\n    if not isinstance(float_value, (float,
+          int)):\n        raise TypeError(''Value \"{}\" has type \"{}\" instead of
+          float.''.format(str(float_value), str(type(float_value))))\n    return str(float_value)\n\nimport
+          argparse\n_parser = argparse.ArgumentParser(prog=''Add'', description='''')\n_parser.add_argument(\"--a\",
+          dest=\"a\", type=float, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--b\",
+          dest=\"b\", type=float, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\",
+          dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = add(**_parsed_args)\n\n_outputs
+          = [_outputs]\n\n_output_serializers = [\n    _serialize_float,\n\n]\n\nimport
+          os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "python:alpine"}}, "inputs": [{"name": "a", "type": "Float"}, {"name":
+          "b", "type": "Float"}], "name": "Add", "outputs": [{"name": "Output", "type":
+          "Float"}]}', pipelines.kubeflow.org/component_ref: '{}', pipelines.kubeflow.org/arguments.parameters: '{"a":
+          "{{inputs.parameters.b}}", "b": "{{inputs.parameters.c}}"}'}
+  - name: add-3
+    container:
+      args: [--a, '{{inputs.parameters.c}}', --b, '{{inputs.parameters.d}}', '----output-paths',
+        /tmp/outputs/Output/data]
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - |
+        def add(a, b):
+            print("Adding two values %s and %s" %(a, b))
+            return a + b
+
+        def _serialize_float(float_value: float) -> str:
+            if isinstance(float_value, str):
+                return float_value
+            if not isinstance(float_value, (float, int)):
+                raise TypeError('Value "{}" has type "{}" instead of float.'.format(str(float_value), str(type(float_value))))
+            return str(float_value)
+
+        import argparse
+        _parser = argparse.ArgumentParser(prog='Add', description='')
+        _parser.add_argument("--a", dest="a", type=float, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("--b", dest="b", type=float, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("----output-paths", dest="_output_paths", type=str, nargs=1)
+        _parsed_args = vars(_parser.parse_args())
+        _output_files = _parsed_args.pop("_output_paths", [])
+
+        _outputs = add(**_parsed_args)
+
+        _outputs = [_outputs]
+
+        _output_serializers = [
+            _serialize_float,
+
+        ]
+
+        import os
+        for idx, output_file in enumerate(_output_files):
+            try:
+                os.makedirs(os.path.dirname(output_file))
+            except OSError:
+                pass
+            with open(output_file, 'w') as f:
+                f.write(_output_serializers[idx](_outputs[idx]))
+      image: python:alpine
+    inputs:
+      parameters:
+      - {name: c}
+      - {name: d}
+    outputs:
+      parameters:
+      - name: add-3-Output
+        valueFrom: {path: /tmp/outputs/Output/data}
+      artifacts:
+      - {name: add-3-Output, path: /tmp/outputs/Output/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.7.2
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--a", {"inputValue": "a"}, "--b", {"inputValue": "b"}, "----output-paths",
+          {"outputPath": "Output"}], "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def add(a, b):\n    print(\"Adding two values %s and %s\" %(a, b))\n    return
+          a + b\n\ndef _serialize_float(float_value: float) -> str:\n    if isinstance(float_value,
+          str):\n        return float_value\n    if not isinstance(float_value, (float,
+          int)):\n        raise TypeError(''Value \"{}\" has type \"{}\" instead of
+          float.''.format(str(float_value), str(type(float_value))))\n    return str(float_value)\n\nimport
+          argparse\n_parser = argparse.ArgumentParser(prog=''Add'', description='''')\n_parser.add_argument(\"--a\",
+          dest=\"a\", type=float, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--b\",
+          dest=\"b\", type=float, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\",
+          dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = add(**_parsed_args)\n\n_outputs
+          = [_outputs]\n\n_output_serializers = [\n    _serialize_float,\n\n]\n\nimport
+          os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "python:alpine"}}, "inputs": [{"name": "a", "type": "Float"}, {"name":
+          "b", "type": "Float"}], "name": "Add", "outputs": [{"name": "Output", "type":
+          "Float"}]}', pipelines.kubeflow.org/component_ref: '{}', pipelines.kubeflow.org/arguments.parameters: '{"a":
+          "{{inputs.parameters.c}}", "b": "{{inputs.parameters.d}}"}'}
+  - name: add-4
+    container:
+      args: [--a, '{{inputs.parameters.add-2-Output}}', --b, '{{inputs.parameters.add-3-Output}}',
+        '----output-paths', /tmp/outputs/Output/data]
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - |
+        def add(a, b):
+            print("Adding two values %s and %s" %(a, b))
+            return a + b
+
+        def _serialize_float(float_value: float) -> str:
+            if isinstance(float_value, str):
+                return float_value
+            if not isinstance(float_value, (float, int)):
+                raise TypeError('Value "{}" has type "{}" instead of float.'.format(str(float_value), str(type(float_value))))
+            return str(float_value)
+
+        import argparse
+        _parser = argparse.ArgumentParser(prog='Add', description='')
+        _parser.add_argument("--a", dest="a", type=float, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("--b", dest="b", type=float, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("----output-paths", dest="_output_paths", type=str, nargs=1)
+        _parsed_args = vars(_parser.parse_args())
+        _output_files = _parsed_args.pop("_output_paths", [])
+
+        _outputs = add(**_parsed_args)
+
+        _outputs = [_outputs]
+
+        _output_serializers = [
+            _serialize_float,
+
+        ]
+
+        import os
+        for idx, output_file in enumerate(_output_files):
+            try:
+                os.makedirs(os.path.dirname(output_file))
+            except OSError:
+                pass
+            with open(output_file, 'w') as f:
+                f.write(_output_serializers[idx](_outputs[idx]))
+      image: python:alpine
+    inputs:
+      parameters:
+      - {name: add-2-Output}
+      - {name: add-3-Output}
+    outputs:
+      artifacts:
+      - {name: add-4-Output, path: /tmp/outputs/Output/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.7.2
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--a", {"inputValue": "a"}, "--b", {"inputValue": "b"}, "----output-paths",
+          {"outputPath": "Output"}], "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def add(a, b):\n    print(\"Adding two values %s and %s\" %(a, b))\n    return
+          a + b\n\ndef _serialize_float(float_value: float) -> str:\n    if isinstance(float_value,
+          str):\n        return float_value\n    if not isinstance(float_value, (float,
+          int)):\n        raise TypeError(''Value \"{}\" has type \"{}\" instead of
+          float.''.format(str(float_value), str(type(float_value))))\n    return str(float_value)\n\nimport
+          argparse\n_parser = argparse.ArgumentParser(prog=''Add'', description='''')\n_parser.add_argument(\"--a\",
+          dest=\"a\", type=float, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--b\",
+          dest=\"b\", type=float, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"----output-paths\",
+          dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args = vars(_parser.parse_args())\n_output_files
+          = _parsed_args.pop(\"_output_paths\", [])\n\n_outputs = add(**_parsed_args)\n\n_outputs
+          = [_outputs]\n\n_output_serializers = [\n    _serialize_float,\n\n]\n\nimport
+          os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n    except
+          OSError:\n        pass\n    with open(output_file, ''w'') as f:\n        f.write(_output_serializers[idx](_outputs[idx]))\n"],
+          "image": "python:alpine"}}, "inputs": [{"name": "a", "type": "Float"}, {"name":
+          "b", "type": "Float"}], "name": "Add", "outputs": [{"name": "Output", "type":
+          "Float"}]}', pipelines.kubeflow.org/component_ref: '{}', pipelines.kubeflow.org/arguments.parameters: '{"a":
+          "{{inputs.parameters.add-2-Output}}", "b": "{{inputs.parameters.add-3-Output}}"}'}
+  - name: creatinglightweightcomponents
+    inputs:
+      parameters:
+      - {name: a}
+      - {name: b}
+      - {name: c}
+      - {name: d}
+      - {name: what}
+    dag:
+      tasks:
+      - name: add
+        template: add
+        arguments:
+          parameters:
+          - {name: a, value: '{{inputs.parameters.a}}'}
+          - {name: b, value: '{{inputs.parameters.b}}'}
+      - name: add-2
+        template: add-2
+        dependencies: [add]
+        arguments:
+          parameters:
+          - {name: b, value: '{{inputs.parameters.b}}'}
+          - {name: c, value: '{{inputs.parameters.c}}'}
+      - name: add-3
+        template: add-3
+        dependencies: [add]
+        arguments:
+          parameters:
+          - {name: c, value: '{{inputs.parameters.c}}'}
+          - {name: d, value: '{{inputs.parameters.d}}'}
+      - name: add-4
+        template: add-4
+        dependencies: [add-2, add-3]
+        arguments:
+          parameters:
+          - {name: add-2-Output, value: '{{tasks.add-2.outputs.parameters.add-2-Output}}'}
+          - {name: add-3-Output, value: '{{tasks.add-3.outputs.parameters.add-3-Output}}'}
+      - name: say
+        template: say
+        dependencies: [add-4]
+        arguments:
+          parameters:
+          - {name: what, value: '{{inputs.parameters.what}}'}
+  - name: say
+    container:
+      args: [--what, '{{inputs.parameters.what}}']
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - |
+        def say(what):
+            print(what)
+
+        import argparse
+        _parser = argparse.ArgumentParser(prog='Say', description='')
+        _parser.add_argument("--what", dest="what", type=str, required=True, default=argparse.SUPPRESS)
+        _parsed_args = vars(_parser.parse_args())
+
+        _outputs = say(**_parsed_args)
+      image: python:alpine
+    inputs:
+      parameters:
+      - {name: what}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.7.2
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--what", {"inputValue": "what"}], "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf
+          \"%s\" \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n",
+          "def say(what):\n    print(what)\n\nimport argparse\n_parser = argparse.ArgumentParser(prog=''Say'',
+          description='''')\n_parser.add_argument(\"--what\", dest=\"what\", type=str,
+          required=True, default=argparse.SUPPRESS)\n_parsed_args = vars(_parser.parse_args())\n\n_outputs
+          = say(**_parsed_args)\n"], "image": "python:alpine"}}, "inputs": [{"name":
+          "what", "type": "String"}], "name": "Say"}', pipelines.kubeflow.org/component_ref: '{}',
+        pipelines.kubeflow.org/arguments.parameters: '{"what": "{{inputs.parameters.what}}"}'}
+  arguments:
+    parameters:
+    - {name: a, value: '1'}
+    - {name: b, value: '2'}
+    - {name: c, value: '3'}
+    - {name: d, value: '4'}
+    - {name: what, value: Completed!}
+  serviceAccountName: pipeline-runner
