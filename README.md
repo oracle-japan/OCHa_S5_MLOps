@@ -188,4 +188,4 @@ MinIO Operator UIには`http://localhost:9090/`でアクセスできます。
 
 これで、MinIOのインストールは完了です。
 
-この後は、パイプラインの作成になります。手順は[こちら](./Workflow_Manifest/README)です。  
+この後は、パイプラインの作成になります。手順は[こちら](./Workflow_Manifest/README.md)です。  
