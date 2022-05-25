@@ -176,6 +176,10 @@ MinIO Operator UIには`http://localhost:9090/`でアクセスできます。
 
 以下のように入力し、テナントを作成します。  
 ![img/1-5.png](img/1-5.png)
+
+ここで指定する`Number of Servers*`と`Drives per Server*`は、Worker Nodeの数に合わせてください。
+この図の場合は、Worker Node数が`4`ということになります。
+
 作成時に、テナントのログインに必要となるアクセスキーとシークレットキーが表示さるので、メモしておきます。  
 ![img/1-6.png](img/1-6.png)
 
