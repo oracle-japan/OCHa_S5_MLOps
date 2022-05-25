@@ -67,4 +67,7 @@ Kubeflow Dashboardにアクセスし、`Experiments(KFP)`をクリックしま�
 
 ![img/1-19.png](../img/1-19.png)
 
-これは、`creating_lightweight_components`の例ですが、`ocha_demo_tfx_pipeline`の場合でも同じ手順で実行できます。
+これは、`creating_lightweight_components`の例ですが、`ocha_demo_tfx_pipeline`の場合でも同じ手順で実行できます。  
+
+`ocha_demo_tfx_pipeline`を実行した場合は、MinIO上にモデルが作成されます。  
+MinIOに格納されたモデルをKubernetes上にデプロイする方法は[こちら](../deploy_model/README)です。  

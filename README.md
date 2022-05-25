@@ -1,5 +1,9 @@
 # 2022/6/8開催　OCHaCafe Season5「MLOpsを始めよう！」のデモ資材
 
+## レポジトリ資材の確認
+
+
+
 ## 環境構築
 
 ### 前提条件
@@ -148,7 +152,7 @@ Krewは、kubectlのプラグインマネージャです。
 
     export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
-#### 2-2. MinIO Operatorのインストール　　
+#### 2-2. MinIO OperatorおよびMinIOのインストール　　
 
 以下のコマンドで、MinIO Operatorをインストールします。
 
@@ -183,3 +187,5 @@ MinIO Operator UIには`http://localhost:9090/`でアクセスできます。
 ![img/1-8.png](img/1-8.png)
 
 これで、MinIOのインストールは完了です。
+
+この後は、パイプラインの作成になります。手順は[こちら](./Workflow_Manifest/README)です。  
