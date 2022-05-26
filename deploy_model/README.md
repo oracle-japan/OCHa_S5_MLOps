@@ -31,7 +31,7 @@ MinIOへのアクセス方法は、[こちら](../README.md#2-2-minio-operator�
 まずは、KserveがMinIOにアクセスできるように、MinIOへのアクセス資格情報を持たせたSecretとサービスアカウントを作成します。  
 
 ```yaml
-sapiVersion: v1
+apiVersion: v1
 kind: Secret
 metadata:
   name: s3creds

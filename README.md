@@ -172,9 +172,13 @@ MinIO Operator UIには`http://localhost:9090/`でアクセスできます。
 
 ![img/1-3.png](img/1-3.png)
 
-ログインしたら、右上にある![img/1-4.png](img/1-4.png)をクリックします。  
+ログインしたら、右上にある![img/1-4.png](img/1-4.png)をクリックします。 
 
-以下のように入力し、テナントを作成します。  
+はじめにSecurityタブに遷移し、TLSの設定をOFFにします。  
+
+![img/1-27.png](img/1-27.png)
+
+その後、`SetUp`に遷移し、以下のように入力し、テナントを作成します。  
 ![img/1-5.png](img/1-5.png)
 
 ここで指定する`Number of Servers*`と`Drives per Server*`は、Worker Nodeの数に合わせてください。
