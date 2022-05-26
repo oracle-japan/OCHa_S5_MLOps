@@ -148,3 +148,5 @@ Kubeflow Dashboardにアクセスし、`Experiments(KFP)`をクリックしま�
 その場合は、再実行してください。
 
 ![img/1-34.png](../img/1-34.png)
+
+このパイプラインで作成したモデルをデプロイしたい場合は、[こちら](../deploy_model/README.md)を実施してください。
