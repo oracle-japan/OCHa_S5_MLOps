@@ -1,0 +1,1 @@
+{"space": [{"class_name": "Choice", "config": {"name": "optimizer", "default": "adam", "values": ["rmsprop", "adam"], "ordered": false}}, {"class_name": "Int", "config": {"name": "units", "default": null, "min_value": 100, "max_value": 250, "step": 50, "sampling": null}}], "values": {"optimizer": "rmsprop", "units": 150}}

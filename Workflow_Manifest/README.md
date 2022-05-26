@@ -14,7 +14,7 @@
 
 * [ocha_demo_tfx_pipeline](../Jupyter_Notebook/ocha_demo_tfx_pipeline.ipynb)
 
-## 2.パイプラインの作成手順
+## 2.パイプラインの作成手順(creating_lightweight_componentsの場合)
 
 ### 2-1.Experimentsの作成
 
@@ -68,8 +68,28 @@ Kubeflow Dashboardにアクセスし、`Experiments(KFP)`をクリックしま�
 ![img/1-19.png](../img/1-19.png)
 
 これは、`creating_lightweight_components`の例ですが、`ocha_demo_tfx_pipeline`の場合でも同じ手順で実行できます。 
-`ocha_demo_tfx_pipeline`は、各パイプラインのステップで利用するベースイメージがかなり大きいので、初回は失敗する可能性があります。  
-その場合は、再実行してください。
+ただし、`ocha_demo_tfx_pipeline`を実行するには、別途事前準備が必要なので、[こちら](../Jupyter_Notebook/README.md)の手順を実行してください。
 
 `ocha_demo_tfx_pipeline`を実行した場合は、MinIO上にモデルが作成されます。  
 MinIOに格納されたモデルをKubernetes上にデプロイする方法は[こちら](../deploy_model/README.md)です。  
+
+## 3.パイプラインの作成手順(ocha_demo_tfx_pipelineの場合)
+
+### 3-1.Experimentsの作成
+
+Kubeflow Dashboardにアクセスし、`Experiments(KFP)`をクリックします。  
+
+`Experiments(KFP)`は、Kubeflow Pipelineパイプラインにおける実行環境環境です。
+パイプラインを実行するためには、この`Experiments(KFP)`に紐づける必要があります。  
+
+![img/1-9.png](../img/1-9.png)
+
+上部にある![img/1-10.png](../img/1-10.png)をクリックします。  
+
+以下のように名前を入力します。今回は`demo`とし、`Next`をクリックします。  
+これで、Experimentsが作成されます。  
+
+### 3-2. ocha_demo_tfx_pipelineの資材作成
+
+`ocha_demo_tfx_pipeline`のパイプラインを実行するには、事前に先ほど構築したMinIOに必要な資材を作成しておく必要があります。  
+
