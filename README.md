@@ -2,7 +2,42 @@
 
 ## レポジトリ資材の確認
 
-
+```
+.
+├── Jupyter_Notebook  ==> Manifestを作成するためのJupyter Notebook(興味がある方は見てください)
+│   ├── adult.data
+│   ├── creating_lightweight_components.ipynb
+│   └── ocha_demo_tfx_pipeline.ipynb
+├── README.md ==> 環境構築手順
+├── Workflow_Manifest ==> パイプラインを作成するための手順と資材
+│   ├── README.md
+│   ├── creating_lightweight_components.yaml
+│   ├── ocha_demo_tfx_pipeline.yaml
+│   └── resource
+│       ├── data
+│       │   └── span-1
+│       │       └── v1
+│       │           └── adult.span-1.tfrecords
+│       ├── module
+│       │   ├── adult_income_trainer_module.py
+│       │   ├── adult_income_trainer_module_without_tuning.py
+│       │   └── adult_income_transorm_module.py
+│       ├── post_schema
+│       │   └── schema.pbtxt
+│       ├── schema
+│       │   └── schema.pbtxt
+│       ├── serving_model
+│       └── tuner
+│           └── best_hyperparameters.txt
+├── deploy_model ==> モデルをデプロイするための手順と資材
+│   ├── README.md
+│   ├── kfserve.yaml
+│   └── s3cred.yaml
+└── metrics ==> モデルのメトリクス監視を行うための手順と資材
+    ├── README.md
+    ├── knative_config.yaml
+    └── knative_monitoring.yaml
+```
 
 ## 環境構築
 
